@@ -1,0 +1,129 @@
+import React, { useState } from 'react';
+import Modal from '../ui/Modal';
+import Button from '../ui/Button';
+import { FileText, Send, Loader2 } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
+import { useToast } from '../../context/ToastContext';
+
+const MoMModal = ({ isOpen, onClose, booking, onSuccess }) => {
+    const { showToast } = useToast();
+    const [notes, setNotes] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const WEBHOOK_URL = "https://studio.pucho.ai/api/v1/webhooks/QGd9SnHTLLRq57ezXGTJl";
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!notes.trim()) {
+            showToast('Please enter some meeting notes.', 'error');
+            return;
+        }
+
+        setLoading(true);
+        try {
+            // 1. Trigger Pucho Studio Webhook
+            const payload = {
+                action: 'generate_mom',
+                booking_id: booking.id,
+                title: booking.title,
+                room_name: booking.room,
+                date: booking.date,
+                start_time: booking.startTime,
+                end_time: booking.endTime,
+                attendees: booking.attendees,
+                attendee_emails: booking.attendee_emails,
+                description: booking.description,
+                mom_notes: notes,
+                timestamp: new Date().toISOString()
+            };
+
+            const response = await fetch(WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) throw new Error('Failed to trigger AI Summary workflow');
+
+            // 2. Update Supabase (Optional: mark as summary sent)
+            // We'll try to update if the columns exist, otherwise skip gracefully
+            const { error: updateError } = await supabase
+                .from('bookings')
+                .update({ 
+                    summary_sent: true,
+                    mom_notes: notes 
+                })
+                .eq('booking_id', booking.id);
+
+            // If table doesn't have these columns, we don't block the success toast
+            if (updateError) console.warn("Supabase update skipped (columns might be missing):", updateError.message);
+
+            showToast('Meeting Summary (MoM) request sent to AI Bot!', 'success');
+            setNotes('');
+            if (onSuccess) onSuccess();
+            onClose();
+        } catch (error) {
+            console.error("MoM Submission Error:", error);
+            showToast('Failed to send MoM: ' + error.message, 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (!booking) return null;
+
+    return (
+        <Modal isOpen={isOpen} onClose={onClose} title="Add Meeting Minutes (MoM)">
+            <form onSubmit={handleSubmit} className="space-y-4 pt-2 text-gray-900">
+                <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100 flex gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-pucho-blue/10 flex items-center justify-center text-pucho-blue shrink-0">
+                        <FileText size={24} />
+                    </div>
+                    <div>
+                        <h4 className="font-bold text-gray-900">{booking.title || 'Untitled Meeting'}</h4>
+                        <p className="text-xs text-gray-500">{booking.date} • {booking.startTime} - {booking.endTime}</p>
+                        <p className="text-xs text-gray-400 mt-1">Room: {booking.room}</p>
+                    </div>
+                </div>
+
+                <div className="space-y-2">
+                    <label className="text-sm font-semibold text-gray-700 ml-1 flex justify-between">
+                        Meeting Notes / Highlights
+                        <span className="text-[10px] text-gray-400 font-normal uppercase tracking-wider">AI will summarize these</span>
+                    </label>
+                    <textarea 
+                        required
+                        rows="6" 
+                        placeholder="Type the key decisions, action items, or discussion points here..." 
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-pucho-blue/30 focus:border-pucho-blue transition-all resize-none text-sm leading-relaxed"
+                    />
+                </div>
+
+                <div className="bg-amber-50 rounded-xl p-3 border border-amber-100/50">
+                    <p className="text-[11px] text-amber-700 leading-tight">
+                        <strong>Note:</strong> This summary will be sent to <strong>{booking.attendee_emails || 'no attendees listed'}</strong>.
+                    </p>
+                </div>
+
+                <div className="pt-2 flex justify-end gap-3">
+                    <button 
+                        type="button" 
+                        disabled={loading}
+                        onClick={onClose} 
+                        className="px-6 py-2 rounded-xl text-gray-500 hover:bg-gray-50 font-medium transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <Button type="submit" disabled={loading} className="px-8 flex items-center gap-2">
+                        {loading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                        Send AI Summary
+                    </Button>
+                </div>
+            </form>
+        </Modal>
+    );
+};
+
+export default MoMModal;
