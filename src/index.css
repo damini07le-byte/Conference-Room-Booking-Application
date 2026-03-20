@@ -4,7 +4,12 @@
 
 @layer base {
   body {
-    @apply bg-pucho-light text-pucho-dark font-sans antialiased;
+    @apply bg-gray-50 text-gray-900 font-sans antialiased;
+    background-color: #f8f9fc;
+  }
+  
+  * {
+    box-sizing: border-box;
   }
 }
 

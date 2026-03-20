@@ -5,6 +5,9 @@ import { useAuth } from '../../context/AuthContext';
 const ChatWidget = () => {
     const { user, profile } = useAuth();
     
+    // Wait for user to load before checking role
+    if (!user) return null;
+    
     // UC-7: Chatbot is only for Employees
     const isEmployee = user?.role?.toUpperCase() === 'EMPLOYEE';
     
@@ -19,7 +22,7 @@ const ChatWidget = () => {
     const messagesEndRef = useRef(null);
 
     // Replace with your actual UC-7 Webhook URL from Pucho Studio
-    const CHATBOT_WEBHOOK_URL = "https://studio.pucho.ai/api/v1/webhooks/QGd9SnHTLLRq57ezXGTJl/sync";
+    const CHATBOT_WEBHOOK_URL = "https://studio.pucho.ai/api/v1/webhooks/iqnCSGaLDLpQFQcLrsa0r";
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -46,6 +49,21 @@ const ChatWidget = () => {
         setIsTyping(true);
 
         try {
+            // Temporarily disabled - Pucho workflow needs fixing
+            // TODO: Re-enable when Pucho fixes their AI model
+            
+            // Simulate bot response for now
+            setTimeout(() => {
+                setMessages(prev => [...prev, {
+                    id: Date.now() + 1,
+                    text: "Chat feature is temporarily disabled. Please contact admin for room availability.",
+                    sender: 'bot',
+                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                }]);
+                setIsTyping(false);
+            }, 1000);
+            
+            /*
             const response = await fetch(CHATBOT_WEBHOOK_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -58,8 +76,6 @@ const ChatWidget = () => {
             });
 
             const data = await response.json();
-            
-            // Assuming Pucho Studio returns the text in data.reply or data.message
             const botReply = data.reply || data.message || "I'm processing your request. Please check Pucho Studio for the response configuration.";
 
             setMessages(prev => [...prev, {
@@ -68,11 +84,12 @@ const ChatWidget = () => {
                 sender: 'bot',
                 time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
             }]);
+            */
         } catch (error) {
             console.error("Chatbot Error:", error);
             setMessages(prev => [...prev, {
                 id: Date.now() + 1,
-                text: "Sorry, I'm having trouble connecting to the brain. Please check your workflow.",
+                text: "Chat feature is temporarily disabled. Please contact admin for room availability.",
                 sender: 'bot',
                 time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
             }]);

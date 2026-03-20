@@ -9,7 +9,7 @@ import mascot3 from '../assets/mascot_3.png';
 import mascot4 from '../assets/mascot_4.png';
 import mascot5 from '../assets/mascot_5.png';
 
-const Mascot = ({ imageSrc, delay, x, y, size = "w-12 h-12 lg:w-14 lg:h-14", cursorColor = "text-blue-500", cursorRotation = "0deg" }) => {
+const Mascot = ({ imageSrc, delay, x, y, size = "w-10 h-10 lg:w-14 lg:h-14", cursorColor = "text-blue-500", cursorRotation = "0deg" }) => {
     return (
         <div
             className={`absolute ${x} ${y} z-20 animate-float transition-all duration-300 hover:scale-110 hover:rotate-6 cursor-pointer pointer-events-auto`}
@@ -25,10 +25,10 @@ const Mascot = ({ imageSrc, delay, x, y, size = "w-12 h-12 lg:w-14 lg:h-14", cur
                 />
             </div>
             <div
-                className={`absolute -bottom-3 -right-3 ${cursorColor} drop-shadow-md`}
+                className={`absolute -bottom-2 -right-2 lg:-bottom-3 lg:-right-3 ${cursorColor} drop-shadow-md`}
                 style={{ transform: `rotate(${cursorRotation})` }}
             >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <svg className="w-4 h-4 lg:w-6 lg:h-6" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                     <path d="M3.5 3.5L10.5 20.5L13.5 13.5L20.5 10.5L3.5 3.5Z" stroke="white" strokeWidth="2" strokeLinejoin="round" />
                 </svg>
             </div>
@@ -90,23 +90,23 @@ const Register = () => {
 
             {/* Floating Mascots */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden h-full w-full font-sans">
-                <div className="absolute top-[18%] left-[4%]">
+                <div className="absolute top-[2%] lg:top-[18%] left-[1%] lg:left-[4%]">
                     <Mascot imageSrc={mascot1} delay={0} cursorColor="text-blue-500" cursorRotation="-15deg" />
                 </div>
-                <div className="absolute bottom-[14%] left-[7%]">
+                <div className="absolute bottom-[2%] lg:bottom-[14%] left-[2%] lg:left-[7%]">
                     <Mascot imageSrc={mascot3} delay={0.8} cursorColor="text-orange-500" cursorRotation="-5deg" />
                 </div>
-                <div className="absolute top-[15%] right-[7%]">
+                <div className="absolute top-[1.5%] lg:top-[15%] right-[2%] lg:right-[7%]">
                     <Mascot imageSrc={mascot5} delay={1.5} cursorColor="text-purple-500" cursorRotation="15deg" />
                 </div>
-                <div className="absolute bottom-[15%] right-[4%]">
+                <div className="absolute bottom-[2%] lg:bottom-[15%] right-[1%] lg:right-[4%]">
                     <Mascot imageSrc={mascot4} delay={2.2} cursorColor="text-green-500" cursorRotation="20deg" />
                 </div>
             </div>
 
-            <div className="w-full max-w-7xl mx-auto grid lg:grid-cols-2 gap-8 lg:gap-16 relative z-10 items-center">
+            <div className="w-full max-w-7xl mx-auto grid lg:grid-cols-2 gap-8 lg:gap-16 relative z-10 items-center pb-8 pt-6 lg:py-0">
                 {/* Left Side: Marketing Content */}
-                <div className="text-left space-y-6 lg:pl-12">
+                <div className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-6 lg:pl-12 mb-2 lg:mb-0">
                     <div className="flex items-center gap-3">
                         <img src={logo} alt="Pucho.ai" className="h-10" />
                     </div>
@@ -128,7 +128,7 @@ const Register = () => {
                         </p>
                     </div>
 
-                    <div className="flex flex-wrap gap-3 pt-1">
+                    <div className="flex flex-wrap justify-center lg:justify-start gap-3 pt-1">
                         <div className="flex items-center gap-2 px-3 py-1.5 bg-[#FAF9FE] border border-[#F0EDFF] rounded-full text-[10px] font-semibold text-[#4F27E9]">
                             <Sparkles size={12} fill="currentColor" />
                             Premium Access

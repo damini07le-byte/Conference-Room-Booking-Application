@@ -3,80 +3,93 @@ import { supabase } from '../lib/supabase';
 
 const AuthContext = createContext(null);
 
+export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error('useAuth must be used within AuthProvider');
+    }
+    return context;
+};
+
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const profile = user ? {
+        full_name: user.full_name || user.email?.split('@')[0] || 'User',
+        email: user.email,
+        department: user.department,
+        role: user.role || 'EMPLOYEE',
+        reminder_30min: user.reminder_30min ?? true,
+        daily_report: user.daily_report ?? true,
+        email_alerts: user.email_alerts ?? true,
+        slack_sync: user.slack_sync ?? false
+    } : null;
+
     useEffect(() => {
-        const initAuth = async () => {
+        let isMounted = true;
+
+        const handleProfileFetch = async (sessionUser) => {
+            if (!sessionUser) return null;
             try {
-                // Try to get session, but don't let a timeout block the app forever
-                const { data, error } = await supabase.auth.getSession();
-                if (error) throw error;
-                
-                const session = data?.session;
-                if (session) {
-                    // Try to fetch profile, but don't block the main user object if it's slow
-                    fetchProfile(session.user);
-                }
-            } catch (error) {
-                console.error("Auth init failed:", error);
-            } finally {
-                setLoading(false);
+                const { data: profileData } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('user_id', sessionUser.id)
+                    .single();
+                return profileData ? { ...sessionUser, ...profileData } : sessionUser;
+            } catch (err) {
+                console.error("[Auth] Profile fetch error:", err);
+                return sessionUser;
             }
         };
 
-        initAuth();
-
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-            if (session) {
-                // Add timeout to profile fetch to prevent hanging in loading state
-                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Profile Timeout')), 3000));
-                const profilePromise = fetchProfile(session.user);
-                
-                try {
-                    await Promise.race([profilePromise, timeoutPromise]);
-                } catch (e) {
-                    console.warn("Profile fetch timed out, continuing with partial user data");
+        const initialize = async () => {
+            console.log("[Auth] initialize started");
+            try {
+                // 1. Check initial session
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session?.user && isMounted) {
+                    const fullUser = await handleProfileFetch(session.user);
+                    if (isMounted) setUser(fullUser);
                 }
-            } else {
-                setUser(null);
+            } catch (err) {
+                console.error("[Auth] initialize error:", err);
+            } finally {
+                if (isMounted) {
+                    setLoading(false);
+                    console.log("[Auth] initialize complete");
+                }
             }
-            setLoading(false);
-        });
 
-        return () => subscription.unsubscribe();
+            // 2. Set up listener for future changes
+            const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+                console.log("[Auth] onAuthStateChange event:", event);
+                if (session?.user) {
+                    const fullUser = await handleProfileFetch(session.user);
+                    if (isMounted) setUser(fullUser);
+                } else if (isMounted) {
+                    setUser(null);
+                }
+                
+                // Safety catch if for some reason loading is still true
+                if (isMounted) setLoading(false);
+            });
+
+            return subscription;
+        };
+
+        const subscriptionPromise = initialize();
+
+        return () => {
+            isMounted = false;
+            subscriptionPromise.then(sub => sub?.unsubscribe());
+        };
     }, []);
-
-    const fetchProfile = async (authUser) => {
-        try {
-            const { data, error } = await supabase
-                .from('users')
-                .select('*')
-                .eq('user_id', authUser.id)
-                .single();
-
-            if (data) {
-                setUser({ ...authUser, ...data });
-            } else {
-                setUser(authUser);
-            }
-        } catch (error) {
-            console.error('Profile fetch error:', error);
-            setUser(authUser);
-        }
-    };
 
     const login = async (email, password) => {
         try {
-            const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Login connection timed out. Please check your internet or Supabase status.')), 6000));
-            const loginPromise = supabase.auth.signInWithPassword({
-                email,
-                password,
-            });
-
-            const { data, error } = await Promise.race([loginPromise, timeoutPromise]);
-
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
             if (error) return { success: false, message: error.message };
             return { success: true };
         } catch (err) {
@@ -85,28 +98,27 @@ export const AuthProvider = ({ children }) => {
     };
 
     const signUp = async (email, password, profileData) => {
-        const { data, error } = await supabase.auth.signUp({
-            email,
-            password,
-        });
+        try {
+            const { data, error } = await supabase.auth.signUp({ email, password });
+            if (error) return { success: false, message: error.message };
 
-        if (error) return { success: false, message: error.message };
-
-        if (data.user) {
-            const { error: profileError } = await supabase
-                .from('users')
-                .insert([{
+            if (data.user) {
+                await supabase.from('users').insert([{
                     user_id: data.user.id,
-                    email: email,
+                    email,
                     full_name: profileData.full_name,
                     department: profileData.department,
-                    role: profileData.role || 'EMPLOYEE'
+                    role: profileData.role || 'EMPLOYEE',
+                    email_alerts: true,
+                    slack_sync: false,
+                    reminder_30min: true,
+                    daily_report: true
                 }]);
-            
-            if (profileError) console.error('Profile Creation Error:', profileError);
+            }
+            return { success: true };
+        } catch (err) {
+            return { success: false, message: err.message };
         }
-
-        return { success: true };
     };
 
     const logout = async () => {
@@ -115,10 +127,8 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, signUp, loading }}>
-            {!loading && children}
+        <AuthContext.Provider value={{ user, profile, login, logout, signUp, loading }}>
+            {children}
         </AuthContext.Provider>
     );
 };
-
-export const useAuth = () => useContext(AuthContext);

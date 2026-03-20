@@ -10,7 +10,7 @@ const MoMModal = ({ isOpen, onClose, booking, onSuccess }) => {
     const [notes, setNotes] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const WEBHOOK_URL = "https://studio.pucho.ai/api/v1/webhooks/QGd9SnHTLLRq57ezXGTJl";
+    const WEBHOOK_URL = "https://studio.pucho.ai/api/v1/webhooks/iqnCSGaLDLpQFQcLrsa0r";
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -37,34 +37,28 @@ const MoMModal = ({ isOpen, onClose, booking, onSuccess }) => {
                 timestamp: new Date().toISOString()
             };
 
-            const response = await fetch(WEBHOOK_URL, {
+            // Fire-and-forget to avoid blocking the UI
+            fetch(WEBHOOK_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
-            });
+            }).catch(e => console.log("MoM Webhook Error:", e));
 
-            if (!response.ok) throw new Error('Failed to trigger AI Summary workflow');
-
-            // 2. Update Supabase (Optional: mark as summary sent)
-            // We'll try to update if the columns exist, otherwise skip gracefully
+            // 2. Update Supabase (mark as summary saved)
             const { error: updateError } = await supabase
                 .from('bookings')
-                .update({ 
-                    summary_sent: true,
-                    mom_notes: notes 
-                })
+                .update({ mom_notes: notes })
                 .eq('booking_id', booking.id);
 
-            // If table doesn't have these columns, we don't block the success toast
-            if (updateError) console.warn("Supabase update skipped (columns might be missing):", updateError.message);
+            if (updateError) console.warn("Supabase update skipped:", updateError.message);
 
-            showToast('Meeting Summary (MoM) request sent to AI Bot!', 'success');
+            showToast('AI Meeting Summary Triggered!', 'success');
             setNotes('');
             if (onSuccess) onSuccess();
             onClose();
         } catch (error) {
             console.error("MoM Submission Error:", error);
-            showToast('Failed to send MoM: ' + error.message, 'error');
+            showToast('Failed to save notes: ' + error.message, 'error');
         } finally {
             setLoading(false);
         }
@@ -101,8 +95,8 @@ const MoMModal = ({ isOpen, onClose, booking, onSuccess }) => {
                     />
                 </div>
 
-                <div className="bg-amber-50 rounded-xl p-3 border border-amber-100/50">
-                    <p className="text-[11px] text-amber-700 leading-tight">
+                <div className="bg-indigo-50 rounded-xl p-3 border border-indigo-100/50">
+                    <p className="text-[11px] text-indigo-700 leading-tight">
                         <strong>Note:</strong> This summary will be sent to <strong>{booking.attendee_emails || 'no attendees listed'}</strong>.
                     </p>
                 </div>

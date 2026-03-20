@@ -23,7 +23,7 @@ const BookingModal = ({ isOpen, onClose, initialData = null, onSuccess }) => {
         description: ''
     });
 
-    const WEBHOOK_URL = "https://studio.pucho.ai/api/v1/webhooks/8F0t3Zmk3XRABYJ8P77k6/sync";
+    const WEBHOOK_URL = "https://studio.pucho.ai/api/v1/webhooks/GpTrz1Gk1lW8ksIY0A5BF";
 
     useEffect(() => {
         if (isOpen) {
@@ -258,7 +258,7 @@ const BookingModal = ({ isOpen, onClose, initialData = null, onSuccess }) => {
 
                 {/* Capacity Warning */}
                 {selectedRoomDetails && parseInt(formData.attendees) > selectedRoomDetails.capacity && (
-                    <div className="flex items-center gap-2 p-3 bg-amber-50 rounded-xl border border-amber-100 text-[10px] font-bold text-amber-700">
+                    <div className="flex items-center gap-2 p-3 bg-indigo-50 rounded-xl border border-indigo-100 text-[10px] font-bold text-indigo-700">
                         <AlertCircle size={14} />
                         Over Capacity: This room fits {selectedRoomDetails.capacity} people max.
                     </div>

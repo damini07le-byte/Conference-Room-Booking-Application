@@ -1,31 +1,55 @@
 import React, { useState, useEffect } from "react";
-import MenuIcon from '../../assets/icons/menu.svg';
+import { Link } from "react-router-dom";
 import SearchIcon from '../../assets/icons/search.svg';
 import BellIcon from '../../assets/icons/bell.png';
 import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../context/AuthContext';
 
-const Header = () => {
+const Header = ({ onMenuClick }) => {
+    const { user, profile } = useAuth();
     const [isFocused, setIsFocused] = useState(false);
     const [notifCount, setNotifCount] = useState(0);
 
     useEffect(() => {
+        if (!user?.id) return;
+        
         const fetchNotifCount = async () => {
-            const today = new Date().toISOString().split('T')[0];
             const { count, error } = await supabase
-                .from('bookings')
+                .from('notifications')
                 .select('*', { count: 'exact', head: true })
-                .eq('booking_date', today);
+                .eq('user_id', user.id)
+                .eq('is_read', false);
             
             if (!error) setNotifCount(count || 0);
         };
         fetchNotifCount();
-    }, []);
+
+        // REAL-TIME: Subscribe to notifications table
+        const channel = supabase
+            .channel('header_notifications')
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'notifications',
+                    filter: `user_id=eq.${user.id}`
+                },
+                () => {
+                    fetchNotifCount();
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
+    }, [user?.id]);
 
     return (
         <header className="sticky top-0 z-20 w-full h-[76px] bg-white/80 backdrop-blur-xl border-b border-gray-100 flex items-center justify-between pl-8 py-0 pr-8">
             {/* Search (Left) */}
-            <div className="flex items-center gap-4 h-[44px]"> {/* Fixed height container to prevent header shift */}
-                <img src={MenuIcon} alt="Menu" className="w-6 h-6 lg:hidden opacity-60 ml-4" /> {/* Added ml-4 for mobile menu spacing if needed, but main search is flush */}
+            <div className="flex items-center gap-4 h-[44px]">
                 <div
                     className={`
                         flex items-center gap-2.5 bg-white rounded-full transition-all duration-200 ease-in-out
@@ -36,7 +60,7 @@ const Header = () => {
                     `}
                 >
                     <div className="flex items-center justify-center w-9 h-9 bg-pucho-blue/10 rounded-full flex-shrink-0">
-                        <img src={SearchIcon} alt="Search" className="w-4 h-4 opacity-100" /> {/* Adjusted size for custom icon */}
+                        <img src={SearchIcon} alt="Search" className="w-4 h-4 opacity-100" />
                     </div>
                     <input
                         type="text"
@@ -54,15 +78,15 @@ const Header = () => {
 
             {/* Actions (Right) */}
             <div className="flex items-center gap-4">
-                {/* Notification Bell */}
-                <div className="relative cursor-pointer hover:bg-gray-50 p-2 rounded-full transition-colors">
+                {/* REAL-TIME Notification Bell */}
+                <Link to={profile?.role?.toUpperCase() === 'ADMIN' ? "/admin/notifications" : "/user/notifications"} className="relative cursor-pointer hover:bg-gray-50 p-2 rounded-full transition-colors">
                     <img src={BellIcon} alt="Notifications" className="w-5 h-5 opacity-70" />
                     {notifCount > 0 && (
-                        <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] flex items-center justify-center rounded-full font-bold">
-                            {notifCount}
+                        <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] flex items-center justify-center rounded-full font-bold animate-pulse">
+                            {notifCount > 9 ? '9+' : notifCount}
                         </span>
                     )}
-                </div>
+                </Link>
 
                 <div className="h-8 w-[1px] bg-gray-200 mx-1"></div>
                 <div className="flex items-center gap-2">

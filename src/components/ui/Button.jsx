@@ -11,29 +11,24 @@ const Button = ({ children, onClick, className = '', disabled = false, icon: Ico
                 font-['Inter'] font-medium text-[16px] leading-[150%]
                 overflow-hidden
                 group
-                bg-black text-white
-                disabled:bg-black/5 disabled:text-black/50 disabled:shadow-none disabled:cursor-not-allowed
+                bg-[#4F27E9] text-white
+                disabled:bg-gray-200 disabled:text-gray-400 disabled:shadow-none disabled:cursor-not-allowed
+                hover:bg-[#3D1DB3]
                 ${className}
             `}
             style={{
-                boxShadow: disabled ? 'none' : '0px 4.4px 8.8px rgba(0, 0, 0, 0.11)',
+                boxShadow: disabled ? 'none' : '0px 4.4px 8.8px rgba(79, 39, 233, 0.3)',
             }}
         >
             {/* Highlight/Gloss Effect - Top Half */}
             <div
                 className={`absolute top-[1px] left-[1px] right-[1px] h-[23px] rounded-[100px] pointer-events-none group-active:hidden group-disabled:hidden`}
                 style={{
-                    background: 'linear-gradient(175.37deg, #FFFFFF -10.54%, rgba(255, 255, 255, 0) 74.6%)',
+                    background: 'linear-gradient(175.37deg, rgba(255,255,255,0.3) -10.54%, rgba(255, 255, 255, 0) 74.6%)',
                     opacity: 0.7,
                     zIndex: 2,
                 }}
             />
-
-            {/* Optional Overlay Rectangle (from CSS "Rectangle 26102734") - keeps button from being pitch black?
-                The provided CSS had this, but usually "Highlight" is the key. 
-                If I add this, it might wash out the black. The user image shows deep black bottom.
-                I will stick to the Highlight as the primary gloss driver.
-            */}
 
             {/* Hover State Background Change */}
             <div className="absolute inset-0 bg-[#2D2D2D] opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-0" />
