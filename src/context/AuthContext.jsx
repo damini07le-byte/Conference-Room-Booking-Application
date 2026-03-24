@@ -56,8 +56,7 @@ export const AuthProvider = ({ children }) => {
                     password: hashedPassword,
                     full_name: profileData.full_name,
                     role: profileData.role || 'EMPLOYEE',
-                    department: profileData.department,
-                    last_login: new Date().toISOString()
+                    department: profileData.department
                 }])
                 .select()
                 .single();
@@ -97,12 +96,8 @@ export const AuthProvider = ({ children }) => {
                 return { success: false, message: "Invalid email or password." };
             }
 
-            // Prepare session data
+            // Prepare session data (Removed last_login update to fix schema cache error)
             const sessionUser = { ...userData };
-            delete sessionUser.password;
-            
-            // Atomic update (DB + State + Storage)
-            await supabase.from('users').update({ last_login: new Date().toISOString() }).eq('email', email);
             
             localStorage.setItem('pucho_session', JSON.stringify(sessionUser));
             setUser(sessionUser);
