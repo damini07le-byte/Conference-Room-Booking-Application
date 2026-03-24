@@ -98,6 +98,7 @@ export const AuthProvider = ({ children }) => {
 
             // Prepare session data (Removed last_login update to fix schema cache error)
             const sessionUser = { ...userData };
+            delete sessionUser.password;
             
             localStorage.setItem('pucho_session', JSON.stringify(sessionUser));
             setUser(sessionUser);
