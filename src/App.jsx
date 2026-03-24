@@ -38,17 +38,16 @@ const LoadingScreen = () => (
 );
 
 const ProtectedRoute = ({ children, allowedRole = null }) => {
-    const { user, profile, loading } = useAuth();
+    const { user, loading } = useAuth();
 
     // Wait for auth to finish initializing before making any routing decisions
     if (loading) return <LoadingScreen />;
 
     if (!user) return <Navigate to="/login" replace />;
     
-    // If a specific role is required (e.g. ADMIN), wait for profile to load too
+    // If a specific role is required (e.g. ADMIN), check it on the user object
     if (allowedRole) {
-        if (!profile) return <LoadingScreen />; // Profile still being fetched
-        if (profile.role?.toUpperCase() !== allowedRole.toUpperCase()) {
+        if (user.role?.toUpperCase() !== allowedRole.toUpperCase()) {
             return <Navigate to="/user" replace />;
         }
     }
@@ -57,14 +56,14 @@ const ProtectedRoute = ({ children, allowedRole = null }) => {
 };
 
 const PublicRoute = ({ children }) => {
-    const { user, profile, loading } = useAuth();
+    const { user, loading } = useAuth();
 
     // Wait for auth to finish initializing
     if (loading) return <LoadingScreen />;
     
-    if (user && profile) {
-        // Only redirect once we know the profile (and thus the role)
-        const target = profile.role?.toUpperCase() === 'ADMIN' ? "/admin" : "/user";
+    if (user) {
+        // Only redirect once we know the role from user object
+        const target = user.role?.toUpperCase() === 'ADMIN' ? "/admin" : "/user";
         return <Navigate to={target} replace />;
     }
     return children;
