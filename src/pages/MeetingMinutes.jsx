@@ -27,9 +27,10 @@ const MeetingMinutes = () => {
         const userEmail = user?.email?.toLowerCase();
         if (!userEmail) return false;
         
-        // Check if user is an attendee
-        const attendeesStr = (b.attendees || '').toLowerCase();
-        return attendeesStr.includes(userEmail);
+        // Check if user is an attendee (Handle both string and array formats)
+        const attendeeData = b.attendees || '';
+        const attendeesSource = typeof attendeeData === 'string' ? attendeeData : JSON.stringify(attendeeData);
+        return attendeesSource.toLowerCase().includes(userEmail);
     });
     
     const filteredMinutes = minutesList.filter(m => 
