@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import Sidebar from "../components/dashboard/Sidebar";
 import Header from "../components/dashboard/Header";
-import ChatWidget from "../components/dashboard/ChatWidget";
 import { Outlet } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 
@@ -51,9 +50,6 @@ const AdminDashboard = () => {
                         <Outlet />
                     </div>
                 </main>
-
-                {/* Chat Bot Widget */}
-                <ChatWidget />
             </div>
         </div>
     );
