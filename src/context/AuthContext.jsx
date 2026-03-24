@@ -101,29 +101,8 @@ export const AuthProvider = ({ children }) => {
 
     const signUp = async (email, password, profileData) => {
         try {
-            // LAYER 1: Pre-Flight Check
-            // Attempt a silent sign-in first. If it works, the user exists and we don't need to 'signUp' (which throttles).
-            const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-                email,
-                password,
-            });
-
-            if (!signInError && signInData.user) {
-                // User already exists and entered correct password. Just trigger a profile refresh.
-                await supabase.from('users').upsert([{
-                    user_id: signInData.user.id,
-                    email,
-                    full_name: profileData.full_name,
-                    department: profileData.department,
-                    role: profileData.role || 'EMPLOYEE',
-                    last_login: new Date().toISOString()
-                }], { onConflict: 'user_id' });
-                
-                return { success: true, message: "Welcome back! Entering dashboard." };
-            }
-
-            // LAYER 2: Actual Silent Signup (Only if user doesn't exist)
-            const { data: signData, error: signError } = await supabase.auth.signUp({
+            // Simplified, robust signup logic
+            const { data, error } = await supabase.auth.signUp({
                 email,
                 password,
                 options: {
@@ -135,22 +114,18 @@ export const AuthProvider = ({ children }) => {
                 }
             });
 
-            if (signError) {
-                if (signError.status === 429 || signError.message.toLowerCase().includes('rate limit')) {
-                    // Provide the "Alias Fix" suggestion directly to the user
-                    return { 
-                        success: false, 
-                        message: "Supabase Security Throttle active. Try using an email alias like: " + 
-                                 email.replace('@', '+test@') + " or wait 10 mins." 
-                    };
+            if (error) {
+                // Return clear error messages to the UI
+                if (error.message.toLowerCase().includes('rate limit')) {
+                    return { success: false, message: "Security throttle: Please use an email alias (e.g. " + email.replace('@', '+test@') + ") or wait 10 mins." };
                 }
-                throw signError;
+                throw error;
             }
 
-            if (signData.user) {
-                // Force link profile to public.users table immediately
+            if (data.user) {
+                // Immediate profile induction
                 const { error: dbError } = await supabase.from('users').upsert([{
-                    user_id: signData.user.id,
+                    user_id: data.user.id,
                     email,
                     full_name: profileData.full_name,
                     department: profileData.department,
@@ -161,9 +136,9 @@ export const AuthProvider = ({ children }) => {
                 if (dbError) throw dbError;
             }
 
-            return { success: true };
+            return { success: true, message: "Account created successfully!" };
         } catch (error) {
-            console.error("[Auth] Unified Registration Failure:", error);
+            console.error("[Auth] Registration Error:", error.message);
             return { success: false, message: error.message };
         }
     };
