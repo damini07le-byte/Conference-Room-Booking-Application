@@ -78,15 +78,24 @@ const Login = () => {
                 setError(result.message || 'Invalid email or password');
                 setLoading(false);
             } else {
-                // Success! Now check if the selected role matches the user's actual role
+                // Success! Use the actual role from DB for direction
                 const actualRole = result.user?.role?.toUpperCase() || 'EMPLOYEE';
+                
+                // Smart Redirection:
+                // 1. If user selected ADMIN but is actually an EMPLOYEE -> Error (Security)
                 if (role === 'ADMIN' && actualRole !== 'ADMIN') {
                     setError('Access Denied: You do not have Administrator privileges.');
                     setLoading(false);
-                } else {
-                    // Manual redirect after success
-                    const target = (role === 'ADMIN' && actualRole === 'ADMIN') ? '/admin' : '/user';
+                    return;
+                }
+
+                // 2. If user is ADMIN, determine target based on selection (allow switching)
+                if (actualRole === 'ADMIN') {
+                    const target = role === 'ADMIN' ? '/admin' : '/user';
                     navigate(target);
+                } else {
+                    // 3. Regular employees always go to employee dashboard
+                    navigate('/user');
                 }
             }
         } catch (err) {
