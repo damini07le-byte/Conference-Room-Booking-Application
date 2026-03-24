@@ -73,30 +73,14 @@ const Login = () => {
         setError('');
 
         try {
-            const result = await login(email, password);
+            const result = await login(email, password, role);
             if (!result.success) {
                 setError(result.message || 'Invalid email or password');
                 setLoading(false);
             } else {
-                // Success! Use the actual role from DB for direction
-                const actualRole = result.user?.role?.toUpperCase() || 'EMPLOYEE';
-                
-                // Smart Redirection:
-                // 1. If user selected ADMIN but is actually an EMPLOYEE -> Error (Security)
-                if (role === 'ADMIN' && actualRole !== 'ADMIN') {
-                    setError('Access Denied: You do not have Administrator privileges.');
-                    setLoading(false);
-                    return;
-                }
-
-                // 2. If user is ADMIN, determine target based on selection (allow switching)
-                if (actualRole === 'ADMIN') {
-                    const target = role === 'ADMIN' ? '/admin' : '/user';
-                    navigate(target);
-                } else {
-                    // 3. Regular employees always go to employee dashboard
-                    navigate('/user');
-                }
+                // Success! Direction based on the role they logged in as
+                const target = role === 'ADMIN' ? '/admin' : '/user';
+                navigate(target);
             }
         } catch (err) {
             setError('An unexpected error occurred');

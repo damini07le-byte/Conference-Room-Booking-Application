@@ -71,7 +71,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     // CUSTOM LOGIN (No Supabase Auth)
-    const login = async (email, password) => {
+    const login = async (email, password, requiredRole = null) => {
         try {
             const { data: userData, error: fetchError } = await supabase
                 .from('users')
@@ -87,6 +87,15 @@ export const AuthProvider = ({ children }) => {
             const isMatch = bcrypt.compareSync(password, userData.password);
             if (!isMatch) {
                 return { success: false, message: "Incorrect password." };
+            }
+
+            // Role Security Enforcement
+            if (requiredRole && userData.role?.toUpperCase() !== requiredRole.toUpperCase()) {
+                const roleLabel = requiredRole?.toUpperCase() === 'ADMIN' ? 'Administrator' : 'Employee';
+                return { 
+                    success: false, 
+                    message: `Access denied. This account does not have ${roleLabel} privileges.` 
+                };
             }
 
             // Prepare session data (Removed last_login update to fix schema cache error)
