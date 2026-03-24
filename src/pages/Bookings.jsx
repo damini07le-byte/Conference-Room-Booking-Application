@@ -220,11 +220,8 @@ const Bookings = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <Badge 
-                                                className={`font-bold px-3 py-1 ${
-                                                    booking.status === 'CONFIRMED' ? 'bg-green-50 text-green-600 border border-green-100' :
-                                                    booking.status === 'CANCELLED' ? 'bg-red-50 text-red-600 border border-red-100' :
-                                                    'bg-orange-50 text-orange-600 border border-orange-100'
-                                                }`}
+                                                status={booking.status}
+                                                className="px-4 py-1.5 uppercase tracking-tighter shadow-sm"
                                             >
                                                 {booking.status}
                                             </Badge>

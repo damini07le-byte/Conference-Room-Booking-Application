@@ -807,7 +807,12 @@ const UserDashboardView = ({ isAdmin, user, profile, onOpenBooking, gridBookings
                                                         <p className="text-xs font-bold text-gray-400">{booking.startTime || '--:--'} - {booking.endTime || '--:--'}</p>
                                                     </div>
                                                     <div className="flex flex-col items-end gap-2">
-                                                        <Badge status={booking.status?.toLowerCase() || 'confirmed'}>{booking.status || 'Confirmed'}</Badge>
+                                                        <Badge 
+                                                            status={booking.status}
+                                                            className="px-2 py-0.5"
+                                                        >
+                                                            {booking.status || 'Confirmed'}
+                                                        </Badge>
                                                         {booking.summary_sent && (
                                                             <span className="flex items-center gap-1 text-[9px] font-black text-green-500 uppercase tracking-widest bg-green-50 px-2 py-0.5 rounded">
                                                                 <CheckCircle size={10} /> Summary Sent
