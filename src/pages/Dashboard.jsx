@@ -236,7 +236,7 @@ const Dashboard = () => {
     const { bookings: globalBookings, rooms: globalRooms, loading: dataLoading, refreshAll, searchQuery } = useData();
     const [isBookingModalOpen, setIsBookingModalOpen] = React.useState(false);
     const [bookingInitialData, setBookingInitialData] = React.useState(null);
-    const isAdmin = profile?.role?.toUpperCase() === 'ADMIN';
+    const isAdmin = (user?.role?.toUpperCase() === 'ADMIN') || (profile?.role?.toUpperCase() === 'ADMIN');
 
     const [isMoMModalOpen, setIsMoMModalOpen] = React.useState(false);
     const [selectedBookingForMoM, setSelectedBookingForMoM] = React.useState(null);
@@ -706,7 +706,7 @@ const UserDashboardView = ({ user, profile, onOpenBooking, gridBookings, todayBo
                         <div className="relative z-10 max-w-lg">
                             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-[10px] font-black uppercase tracking-widest mb-6 backdrop-blur-md">
                                 <Bot size={14} className="text-white" />
-                                Pucho OS · Employee Portal
+                                Pucho OS · {isAdmin ? 'Management Hub' : 'Employee Portal'}
                             </div>
                             <h2 className="text-4xl font-black mb-3 tracking-tight">Hello, {user?.full_name?.split(' ')?.[0] || 'User'}!</h2>
                             <p className="text-white/70 mb-10 font-medium text-lg leading-relaxed">Ready to automate your next meeting? Your personal assistant is ready in the bottom corner.</p>

@@ -47,7 +47,7 @@ const Sidebar = ({ onClose }) => {
     const userRole = profile?.role || 'EMPLOYEE';
     const createdAt = user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A';
 
-    const isAdmin = profile?.role?.toUpperCase() === 'ADMIN';
+    const isAdmin = (user?.role?.toUpperCase() === 'ADMIN') || (profile?.role?.toUpperCase() === 'ADMIN');
     const basePath = isAdmin ? '/admin' : '/user';
 
     const menuItems = [
