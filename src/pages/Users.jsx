@@ -125,8 +125,17 @@ const Users = () => {
         };
 
         try {
-            // 🚀 1. DIRECT DB SYNC (PRIMARY - AWAIT)
-            const { error } = await supabase.from('users').upsert([invitePayload], { onConflict: 'email' });
+            // 🚀 1. HASH DEFAULT PASSWORD (FOR CUSTOM AUTH SYNC)
+            const bcrypt = (await import('bcryptjs')).default;
+            const defaultHashedPassword = bcrypt.hashSync('Pucho@123', 10);
+
+            const finalPayload = {
+                ...invitePayload,
+                password: defaultHashedPassword
+            };
+
+            // 🚀 2. DIRECT DB SYNC (PRIMARY - AWAIT)
+            const { error } = await supabase.from('users').upsert([finalPayload], { onConflict: 'email' });
             if (error) throw error;
 
             // 🚀 2. FIRE WEBHOOK (BACKGROUND)

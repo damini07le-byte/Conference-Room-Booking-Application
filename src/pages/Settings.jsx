@@ -120,17 +120,27 @@ const Settings = () => {
         }
         
         setLoading(true);
-        const { error } = await supabase.auth.updateUser({
-            password: passwords.newPassword
-        });
+        try {
+            // 🚀 1. HASH NEW PASSWORD (FOR CUSTOM AUTH SYNC)
+            const bcrypt = (await import('bcryptjs')).default;
+            const hashedPassword = bcrypt.hashSync(passwords.newPassword, 10);
 
-        if (error) {
-            showToast(error.message, "error");
-        } else {
+            // 🚀 2. UPDATE DATABASE TABLE DIRECTLY
+            const { error } = await supabase
+                .from('users')
+                .update({ password: hashedPassword })
+                .eq('id', user.id);
+
+            if (error) throw error;
+
             showToast("Password updated successfully", "success");
             setPasswords({ newPassword: '', confirmPassword: '' });
+        } catch (error) {
+            console.error("[Settings] Password Update Failure:", error.message);
+            showToast(error.message || "Failed to update password", "error");
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     const handleAvatarUpload = (e) => {
