@@ -115,9 +115,12 @@ export const AuthProvider = ({ children }) => {
             });
 
             if (error) {
-                // Return clear error messages to the UI
-                if (error.message.toLowerCase().includes('rate limit')) {
-                    return { success: false, message: "Security throttle: Please use an email alias (e.g. " + email.replace('@', '+test@') + ") or wait 10 mins." };
+                // Precise error reporting for rate limits
+                if (error.status === 429 || error.message.toLowerCase().includes('rate limit')) {
+                    return { 
+                        success: false, 
+                        message: "Your IP is temporarily blocked by Supabase for security. Please wait 10-15 mins or use a different internet connection (Mobile Data)." 
+                    };
                 }
                 throw error;
             }
