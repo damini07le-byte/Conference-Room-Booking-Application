@@ -396,6 +396,7 @@ const Dashboard = () => {
         <div className="space-y-8 animate-fade-in group/dashboard">
             {isAdmin ? (
                 <AdminDashboardView 
+                    isAdmin={isAdmin}
                     onOpenBooking={handleOpenBooking} 
                     stats={stats} 
                     gridBookings={gridBookings} 
@@ -406,6 +407,7 @@ const Dashboard = () => {
                 />
             ) : (
                 <UserDashboardView 
+                    isAdmin={isAdmin}
                     user={user} 
                     profile={profile}
                     onOpenBooking={handleOpenBooking} 
@@ -438,7 +440,7 @@ const Dashboard = () => {
     );
 };
 
-const AdminDashboardView = ({ onOpenBooking, stats, gridBookings, selectedGridDate, setSelectedGridDate, activeTab, setActiveTab }) => {
+const AdminDashboardView = ({ isAdmin, onOpenBooking, stats, gridBookings, selectedGridDate, setSelectedGridDate, activeTab, setActiveTab }) => {
     const getTrend = (current, previous) => {
         if (previous === undefined || previous === null || previous === 0) {
             if (current > 0) return { value: 100, isUp: true };
@@ -692,7 +694,7 @@ const AdminDashboardView = ({ onOpenBooking, stats, gridBookings, selectedGridDa
     );
 };
 
-const UserDashboardView = ({ user, profile, onOpenBooking, gridBookings, todayBookings, onOpenMoM, loadingToday, stats, selectedGridDate, setSelectedGridDate }) => {
+const UserDashboardView = ({ isAdmin, user, profile, onOpenBooking, gridBookings, todayBookings, onOpenMoM, loadingToday, stats, selectedGridDate, setSelectedGridDate }) => {
     const { notifications } = useData();
     const unreadCount = notifications?.filter(n => !n.is_read).length || 0;
 

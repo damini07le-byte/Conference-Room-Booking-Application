@@ -21,7 +21,7 @@ import { Settings as SettingsIcon, X, Mail, Building, Shield, Calendar, User } f
 
 const Sidebar = ({ onClose }) => {
     const navigate = useNavigate();
-    const { user, logout, profile } = useAuth();
+    const { user, logout } = useAuth();
     const [showProfile, setShowProfile] = useState(false);
     const [logoutLoading, setLogoutLoading] = useState(false);
     const { showToast } = useToast();
@@ -41,13 +41,13 @@ const Sidebar = ({ onClose }) => {
         }
     };
 
-    const userEmail = user?.email || 'admin@pucho.ai';
-    const userName = profile?.full_name || user?.full_name || 'Admin User';
-    const userDepartment = profile?.department || 'Not Set';
-    const userRole = profile?.role || 'EMPLOYEE';
+    const userEmail = user?.email || 'user@pucho.ai';
+    const userName = user?.full_name || 'Pucho User';
+    const userDepartment = user?.department || 'Member';
+    const userRole = user?.role || 'EMPLOYEE';
     const createdAt = user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A';
 
-    const isAdmin = (user?.role?.toUpperCase() === 'ADMIN') || (profile?.role?.toUpperCase() === 'ADMIN');
+    const isAdmin = user?.role?.toUpperCase() === 'ADMIN';
     const basePath = isAdmin ? '/admin' : '/user';
 
     const menuItems = [

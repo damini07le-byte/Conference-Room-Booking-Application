@@ -7,7 +7,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
 
 const Header = ({ onMenuClick }) => {
-    const { user, profile } = useAuth();
+    const { user } = useAuth();
     const { notifications, searchQuery, setSearchQuery } = useData();
     const [isFocused, setIsFocused] = useState(false);
     
@@ -49,7 +49,7 @@ const Header = ({ onMenuClick }) => {
             {/* Actions (Right) */}
             <div className="flex items-center gap-4">
                 {/* REAL-TIME Notification Bell */}
-                <Link to={profile?.role?.toUpperCase() === 'ADMIN' ? "/admin/notifications" : "/user/notifications"} className="relative cursor-pointer hover:bg-gray-50 p-2 rounded-full transition-colors">
+                <Link to={user?.role?.toUpperCase() === 'ADMIN' ? "/admin/notifications" : "/user/notifications"} className="relative cursor-pointer hover:bg-gray-50 p-2 rounded-full transition-colors">
                     <img src={BellIcon} alt="Notifications" className="w-5 h-5 opacity-70" />
                     {notifCount > 0 && (
                         <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] flex items-center justify-center rounded-full font-bold animate-pulse">
