@@ -101,46 +101,60 @@ export const AuthProvider = ({ children }) => {
 
     const signUp = async (email, password, profileData) => {
         try {
-            const { data, error: authError } = await supabase.auth.signUp({ 
-                email, 
+            const { data: signData, error: signError } = await supabase.auth.signUp({
+                email,
                 password,
                 options: {
                     data: {
                         full_name: profileData.full_name,
-                        role: profileData.role || 'EMPLOYEE'
+                        role: profileData.role || 'EMPLOYEE',
+                        department: profileData.department
                     }
                 }
             });
 
-            if (authError) {
-                console.error("[Auth] Signup auth error:", authError);
-                return { success: false, message: authError.message };
+            if (signError) {
+                if (signError.message.toLowerCase().includes('rate limit')) {
+                    throw new Error("Security throttle active. Please wait 10 mins or use a fresh test email.");
+                }
+                throw signError;
             }
 
-            if (data.user) {
+            if (signData.user) {
                 const { error: dbError } = await supabase.from('users').upsert([{
-                    user_id: data.user.id,
+                    user_id: signData.user.id,
                     email,
                     full_name: profileData.full_name,
                     department: profileData.department,
                     role: profileData.role || 'EMPLOYEE',
-                    email_alerts: true,
-                    slack_sync: false,
-                    reminder_30min: true,
-                    daily_report: true
+                    last_login: new Date().toISOString()
                 }], { onConflict: 'user_id' });
 
-                if (dbError) {
-                    console.error("[Auth] Profile insert error:", dbError);
-                    // Even if profile insert fails, the user is created in Auth. 
-                    // But for consistency we return error.
-                    return { success: false, message: "Profile creation failed: " + dbError.message };
-                }
+                if (dbError) throw dbError;
+
+                // Fire Onboarding Webhook (Pucho Studio)
+                try {
+                    const webhookUrl = import.meta.env.VITE_ONBOARDING_WEBHOOK_URL;
+                    if (webhookUrl) {
+                        fetch(webhookUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                type: 'ONBOARDING',
+                                email: email,
+                                name: profileData.full_name,
+                                role: profileData.role,
+                                timestamp: new Date().toISOString()
+                            })
+                        }).catch(e => console.warn('Onboarding webhook skipped:', e));
+                    }
+                } catch (e) { /* Non-critical failure */ }
             }
+
             return { success: true };
-        } catch (err) {
-            console.error("[Auth] Unexpected signup error:", err);
-            return { success: false, message: err.message };
+        } catch (error) {
+            console.error("[Auth] Registration failure:", error);
+            return { success: false, message: error.message };
         }
     };
 

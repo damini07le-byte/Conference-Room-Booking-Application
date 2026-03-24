@@ -64,42 +64,26 @@ const Register = () => {
         setLoading(true);
 
         try {
-            // 🚀 Now using the EXPLICITLY selected role from the form
-            // No more hidden email-based deduction
-            const userRole = formData.role;
+            setLoading(true);
+            setError('');
 
-            const result = await signUp(formData.email, formData.password, {
+            const result = await signUp(formData.email, formData.password, { 
                 full_name: formData.full_name,
-                department: finalDept,
-                role: userRole
+                department: finalDept, // Use finalDept here
+                role: formData.role
             });
-
+            
             if (result.success) {
-                // Background Onboarding Webhook
-                try {
-                    const ONBOARD_URL = import.meta.env.VITE_ONBOARDING_WEBHOOK_URL || "https://studio.pucho.ai/api/v1/webhooks/fGjOoM7eciSpGACaz09jq";
-                    fetch(ONBOARD_URL, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ action: 'signup', email: formData.email, full_name: formData.full_name, department: finalDept })
-                    }).catch(e => console.log(e));
-                } catch (e) {}
-
-                showToast("Account created successfully!", "success");
-                
-                // 🚀 Immediate Role-Based Redirect
-                // If the user is logged in automatically, the App-level PrivateRoute will handle this.
-                // We just need to stop the manual '/login' redirect to allow it.
-                if (userRole === 'ADMIN') {
-                    navigate('/admin');
-                } else {
-                    navigate('/user');
-                }
+                toast.success('Account created! Entering dashboard...');
+                // Redirection handled by AuthContext + PrivateRoute
             } else {
-                setError(result.message || "Signup failed");
+                setError(result.message || 'Registration failed.');
+                toast.error(result.message || 'Registration failed');
             }
         } catch (err) {
-            setError(err.message || 'Signup failed');
+            console.error('Unified signup failure:', err);
+            setError(err.message || 'An unexpected error occurred during signup');
+            toast.error('Registration failed');
         } finally {
             setLoading(false);
         }
