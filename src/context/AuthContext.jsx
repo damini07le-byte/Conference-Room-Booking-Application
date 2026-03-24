@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }) => {
         try {
             const { data: userData, error: fetchError } = await supabase
                 .from('users')
-                .select('id, email, password, full_name, role, department')
+                .select('user_id, email, password, full_name, role, department')
                 .eq('email', email)
                 .maybeSingle();
 
