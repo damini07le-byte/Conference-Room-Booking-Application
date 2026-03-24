@@ -37,11 +37,12 @@ export const AuthProvider = ({ children }) => {
             // Check if user already exists
             const { data: existingUser, error: fetchError } = await supabase
                 .from('users')
-                .select('email')
+                .select('*') // Select all to see full ghost data
                 .eq('email', email)
                 .maybeSingle();
 
             if (existingUser) {
+                console.log("⚠️ [Auth Debug] Conflict Found! Existing User Data:", JSON.stringify(existingUser, null, 2));
                 return { success: false, message: "User already exists with this email." };
             }
 
