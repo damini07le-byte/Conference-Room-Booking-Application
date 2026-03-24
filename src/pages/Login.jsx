@@ -168,7 +168,7 @@ const Login = () => {
                                 <label className="text-xs md:text-sm font-semibold text-gray-500 ml-1">Email</label>
                                 <Input
                                     type="text"
-                                    placeholder="admin@pucho.ai"
+                                    placeholder="Enter Email Address"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     className="!gap-0"

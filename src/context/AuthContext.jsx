@@ -101,11 +101,24 @@ export const AuthProvider = ({ children }) => {
 
     const signUp = async (email, password, profileData) => {
         try {
-            const { data, error } = await supabase.auth.signUp({ email, password });
-            if (error) return { success: false, message: error.message };
+            const { data, error: authError } = await supabase.auth.signUp({ 
+                email, 
+                password,
+                options: {
+                    data: {
+                        full_name: profileData.full_name,
+                        role: profileData.role || 'EMPLOYEE'
+                    }
+                }
+            });
+
+            if (authError) {
+                console.error("[Auth] Signup auth error:", authError);
+                return { success: false, message: authError.message };
+            }
 
             if (data.user) {
-                await supabase.from('users').insert([{
+                const { error: dbError } = await supabase.from('users').insert([{
                     user_id: data.user.id,
                     email,
                     full_name: profileData.full_name,
@@ -116,9 +129,17 @@ export const AuthProvider = ({ children }) => {
                     reminder_30min: true,
                     daily_report: true
                 }]);
+
+                if (dbError) {
+                    console.error("[Auth] Profile insert error:", dbError);
+                    // Even if profile insert fails, the user is created in Auth. 
+                    // But for consistency we return error.
+                    return { success: false, message: "Profile creation failed: " + dbError.message };
+                }
             }
             return { success: true };
         } catch (err) {
+            console.error("[Auth] Unexpected signup error:", err);
             return { success: false, message: err.message };
         }
     };

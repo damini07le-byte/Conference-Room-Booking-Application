@@ -85,8 +85,16 @@ const Register = () => {
                     }).catch(e => console.log(e));
                 } catch (e) {}
 
-                showToast("Account created! Please log in.", "success");
-                navigate('/login', { state: { email: formData.email } });
+                showToast("Account created successfully!", "success");
+                
+                // 🚀 Immediate Role-Based Redirect
+                // If the user is logged in automatically, the App-level PrivateRoute will handle this.
+                // We just need to stop the manual '/login' redirect to allow it.
+                if (userRole === 'ADMIN') {
+                    navigate('/admin');
+                } else {
+                    navigate('/user');
+                }
             } else {
                 setError(result.message || "Signup failed");
             }
@@ -162,12 +170,12 @@ const Register = () => {
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div className="space-y-1">
                                 <label className="text-xs font-semibold text-gray-500 ml-1">Full Name</label>
-                                <Input prefix={<User size={18} />} value={formData.full_name} onChange={(e) => setFormData({...formData, full_name: e.target.value})} placeholder="Damini More" />
+                                <Input prefix={<User size={18} />} value={formData.full_name} onChange={(e) => setFormData({...formData, full_name: e.target.value})} placeholder="Enter Full Name" />
                             </div>
 
                             <div className="space-y-1">
                                 <label className="text-xs font-semibold text-gray-500 ml-1">Email</label>
-                                <Input prefix={<Mail size={18} />} type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} placeholder="damini07.le@gmail.com" />
+                                <Input prefix={<Mail size={18} />} type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} placeholder="Enter Email Address" />
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
