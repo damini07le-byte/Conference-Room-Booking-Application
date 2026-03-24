@@ -49,7 +49,7 @@ export const AuthProvider = ({ children }) => {
             const hashedPassword = bcrypt.hashSync(password, 10);
             
             // Create user record in DB
-            const { data, error: insertError } = await supabase
+            const { error: insertError } = await supabase
                 .from('users')
                 .insert([{
                     email,
@@ -57,20 +57,12 @@ export const AuthProvider = ({ children }) => {
                     full_name: profileData.full_name,
                     role: profileData.role || 'EMPLOYEE',
                     department: profileData.department
-                }])
-                .select()
-                .single();
+                }]);
 
             if (insertError) throw insertError;
 
-            // Optional: Auto-login after signup
-            const sessionUser = { ...data };
-            delete sessionUser.password; // Don't store password in state
-            
-            localStorage.setItem('pucho_session', JSON.stringify(sessionUser));
-            setUser(sessionUser);
-
-            return { success: true, message: "Account created successfully!" };
+            // Success feedback (No need to select back, we have the user info)
+            return { success: true, message: "Account created successfully! Please login." };
         } catch (error) {
             console.error("[Auth] Custom Signup Failure:", error.message);
             return { success: false, message: error.message };
