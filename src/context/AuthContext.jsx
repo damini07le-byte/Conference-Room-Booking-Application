@@ -101,6 +101,28 @@ export const AuthProvider = ({ children }) => {
 
     const signUp = async (email, password, profileData) => {
         try {
+            // LAYER 1: Pre-Flight Check
+            // Attempt a silent sign-in first. If it works, the user exists and we don't need to 'signUp' (which throttles).
+            const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            });
+
+            if (!signInError && signInData.user) {
+                // User already exists and entered correct password. Just trigger a profile refresh.
+                await supabase.from('users').upsert([{
+                    user_id: signInData.user.id,
+                    email,
+                    full_name: profileData.full_name,
+                    department: profileData.department,
+                    role: profileData.role || 'EMPLOYEE',
+                    last_login: new Date().toISOString()
+                }], { onConflict: 'user_id' });
+                
+                return { success: true, message: "Welcome back! Entering dashboard." };
+            }
+
+            // LAYER 2: Actual Silent Signup (Only if user doesn't exist)
             const { data: signData, error: signError } = await supabase.auth.signUp({
                 email,
                 password,
@@ -114,13 +136,19 @@ export const AuthProvider = ({ children }) => {
             });
 
             if (signError) {
-                if (signError.message.toLowerCase().includes('rate limit')) {
-                    throw new Error("Security throttle active. Please wait 10 mins or use a fresh test email.");
+                if (signError.status === 429 || signError.message.toLowerCase().includes('rate limit')) {
+                    // Provide the "Alias Fix" suggestion directly to the user
+                    return { 
+                        success: false, 
+                        message: "Supabase Security Throttle active. Try using an email alias like: " + 
+                                 email.replace('@', '+test@') + " or wait 10 mins." 
+                    };
                 }
                 throw signError;
             }
 
             if (signData.user) {
+                // Force link profile to public.users table immediately
                 const { error: dbError } = await supabase.from('users').upsert([{
                     user_id: signData.user.id,
                     email,
@@ -131,29 +159,11 @@ export const AuthProvider = ({ children }) => {
                 }], { onConflict: 'user_id' });
 
                 if (dbError) throw dbError;
-
-                // Fire Onboarding Webhook (Pucho Studio)
-                try {
-                    const webhookUrl = import.meta.env.VITE_ONBOARDING_WEBHOOK_URL;
-                    if (webhookUrl) {
-                        fetch(webhookUrl, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                type: 'ONBOARDING',
-                                email: email,
-                                name: profileData.full_name,
-                                role: profileData.role,
-                                timestamp: new Date().toISOString()
-                            })
-                        }).catch(e => console.warn('Onboarding webhook skipped:', e));
-                    }
-                } catch (e) { /* Non-critical failure */ }
             }
 
             return { success: true };
         } catch (error) {
-            console.error("[Auth] Registration failure:", error);
+            console.error("[Auth] Unified Registration Failure:", error);
             return { success: false, message: error.message };
         }
     };

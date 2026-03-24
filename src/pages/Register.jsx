@@ -74,7 +74,8 @@ const Register = () => {
             });
             
             if (result.success) {
-                showToast('Account created! Entering dashboard...', 'success');
+                showToast(result.message || 'Account created! Entering dashboard...', 'success');
+                // Navigation will be handled by AuthContext state update
             } else {
                 setError(result.message || 'Registration failed.');
                 showToast(result.message || 'Registration failed', 'error');
