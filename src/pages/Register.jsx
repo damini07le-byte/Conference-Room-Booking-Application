@@ -49,6 +49,8 @@ const Register = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (loading) return; // Silent guard for double-clicks
+        
         setError('');
         
         const finalDept = showOtherDept ? customDept : formData.department;
@@ -61,12 +63,9 @@ const Register = () => {
             setError('Password must be at least 6 characters');
             return;
         }
+
         setLoading(true);
-
         try {
-            setLoading(true);
-            setError('');
-
             const result = await signUp(formData.email, formData.password, { 
                 full_name: formData.full_name,
                 department: finalDept,
@@ -79,13 +78,13 @@ const Register = () => {
             } else {
                 setError(result.message || 'Registration failed.');
                 showToast(result.message || 'Registration failed', 'error');
+                setLoading(false); // Reset on failure
             }
         } catch (err) {
             console.error('Unified signup failure:', err);
             setError(err.message || 'An unexpected error occurred during signup');
             showToast('Registration failed', 'error');
-        } finally {
-            setLoading(false);
+            setLoading(false); // Reset on error
         }
     };
 

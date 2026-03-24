@@ -101,7 +101,8 @@ export const AuthProvider = ({ children }) => {
 
     const signUp = async (email, password, profileData) => {
         try {
-            // Simplified, robust signup logic
+            // LAYER 1: Explicit Silent Signup 
+            // Note: This works best when "Confirm Email" is OFF in Supabase Dashboard
             const { data, error } = await supabase.auth.signUp({
                 email,
                 password,
@@ -110,23 +111,25 @@ export const AuthProvider = ({ children }) => {
                         full_name: profileData.full_name,
                         role: profileData.role || 'EMPLOYEE',
                         department: profileData.department
-                    }
+                    },
+                    // Prevent email confirmation redirection if possible via client
+                    emailRedirectTo: window.location.origin,
                 }
             });
 
             if (error) {
-                // Precise error reporting for rate limits
-                if (error.status === 429 || error.message.toLowerCase().includes('rate limit')) {
+                // Return clear error messages specifically for Email Throttling
+                if (error.message.includes('over_email_send_rate_limit') || error.status === 429) {
                     return { 
                         success: false, 
-                        message: "Your IP is temporarily blocked by Supabase for security. Please wait 10-15 mins or use a different internet connection (Mobile Data)." 
+                        message: "Supabase Email Limit Hit. Please wait 15 mins or use a different email (e.g. " + email.replace('@', '+test@') + ")." 
                     };
                 }
                 throw error;
             }
 
             if (data.user) {
-                // Immediate profile induction
+                // LAYER 2: Immediate DB Induction (Atomic)
                 const { error: dbError } = await supabase.from('users').upsert([{
                     user_id: data.user.id,
                     email,
@@ -139,9 +142,9 @@ export const AuthProvider = ({ children }) => {
                 if (dbError) throw dbError;
             }
 
-            return { success: true, message: "Account created successfully!" };
+            return { success: true, message: "Account created! Welcome to Pucho." };
         } catch (error) {
-            console.error("[Auth] Registration Error:", error.message);
+            console.error("[Auth] Registration Engine Failure:", error.message);
             return { success: false, message: error.message };
         }
     };
