@@ -44,10 +44,11 @@ const Mascot = ({ imageSrc, delay, x, y, size = "w-10 h-10 lg:w-14 lg:h-14", cur
 const Login = () => {
     const { login, user } = useAuth();
     const navigate = useNavigate();
-    const location = useLocation(); // 🚀 Capture state from navigation
+    const location = useLocation(); 
     const [loading, setLoading] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [role, setRole] = useState('EMPLOYEE'); // Default role selection
     const [error, setError] = useState('');
 
     // Pre-fill email if passed from Register page
@@ -59,16 +60,15 @@ const Login = () => {
 
     useEffect(() => {
         if (user) {
-            const role = user.role?.toUpperCase();
-            if (role === 'ADMIN') {
+            const actualRole = user.role?.toUpperCase();
+            // Respect the intent if possible, otherwise default to actual role
+            if (role === 'ADMIN' && actualRole === 'ADMIN') {
                 navigate('/admin');
-            } else if (role === 'EMPLOYEE') {
-                navigate('/user');
             } else {
-                setLoading(false); // Safeguard if user has no role
+                navigate('/user'); // Default to user view if intended or if forced by role
             }
         }
-    }, [user, navigate]);
+    }, [user, navigate, role]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -84,6 +84,14 @@ const Login = () => {
             if (!result.success) {
                 setError(result.message || 'Invalid email or password');
                 setLoading(false);
+            } else {
+                // Success! Now check if the selected role matches the user's actual role
+                const actualRole = result.user?.role?.toUpperCase() || 'EMPLOYEE';
+                if (role === 'ADMIN' && actualRole !== 'ADMIN') {
+                    setError('Access Denied: You do not have Administrator privileges.');
+                    setLoading(false);
+                    // Optionally logout if we don't want them logged in at all in this state
+                }
             }
         } catch (err) {
             setError('An unexpected error occurred');
@@ -160,6 +168,27 @@ const Login = () => {
                             <div className="text-center md:text-left">
                                 <h2 className="text-2xl md:text-3xl font-bold text-[#111834]">Welcome Back</h2>
                                 <p className="text-gray-400 text-sm md:text-base mt-1">Log in to manage your flows.</p>
+                            </div>
+
+                            {/* Role Selector Dashboard Toggle */}
+                            <div className="flex p-1.5 bg-gray-50/80 backdrop-blur-sm border border-gray-100 rounded-[20px] relative">
+                                <div 
+                                    className={`absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-white rounded-[16px] shadow-sm transition-all duration-300 ease-out ${role === 'ADMIN' ? 'translate-x-[calc(100%+6px)]' : 'translate-x-0'}`}
+                                />
+                                <button 
+                                    type="button"
+                                    onClick={() => setRole('EMPLOYEE')}
+                                    className={`relative z-10 flex-1 py-2.5 text-sm font-bold transition-colors duration-300 ${role === 'EMPLOYEE' ? 'text-pucho-blue' : 'text-gray-400'}`}
+                                >
+                                    Dashboard
+                                </button>
+                                <button 
+                                    type="button"
+                                    onClick={() => setRole('ADMIN')}
+                                    className={`relative z-10 flex-1 py-2.5 text-sm font-bold transition-colors duration-300 ${role === 'ADMIN' ? 'text-pucho-blue' : 'text-gray-400'}`}
+                                >
+                                    Admin
+                                </button>
                             </div>
                         </div>
 

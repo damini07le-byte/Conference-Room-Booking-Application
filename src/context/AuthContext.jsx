@@ -96,7 +96,7 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem('pucho_session', JSON.stringify(sessionUser));
             setUser(sessionUser);
 
-            return { success: true, message: "Login successful!" };
+            return { success: true, message: "Login successful!", user: sessionUser };
         } catch (error) {
             console.error("[Auth] Custom Login Failure:", error.message);
             return { success: false, message: error.message };
