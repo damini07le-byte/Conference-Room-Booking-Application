@@ -80,13 +80,13 @@ export const AuthProvider = ({ children }) => {
                 .maybeSingle();
 
             if (fetchError || !userData) {
-                return { success: false, message: "Invalid email or password." };
+                return { success: false, message: "User doesn't exist." };
             }
 
             // Verify password
             const isMatch = bcrypt.compareSync(password, userData.password);
             if (!isMatch) {
-                return { success: false, message: "Invalid email or password." };
+                return { success: false, message: "Incorrect password." };
             }
 
             // Prepare session data (Removed last_login update to fix schema cache error)
