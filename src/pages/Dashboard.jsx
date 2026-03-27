@@ -440,15 +440,17 @@ const Dashboard = () => {
     );
 };
 
+import StatCard from '../components/dashboard/StatCard';
+
 const AdminDashboardView = ({ isAdmin, onOpenBooking, stats, gridBookings, selectedGridDate, setSelectedGridDate, activeTab, setActiveTab }) => {
     const getTrend = (current, previous) => {
         if (previous === undefined || previous === null || previous === 0) {
-            if (current > 0) return { value: 100, isUp: true };
+            if (current > 0) return { value: '100%', isUp: true };
             return null;
         }
         const diff = ((current - previous) / previous) * 100;
         return {
-            value: Math.abs(Math.round(diff)),
+            value: `${Math.abs(Math.round(diff))}%`,
             isUp: diff >= 0
         };
     };
@@ -456,84 +458,75 @@ const AdminDashboardView = ({ isAdmin, onOpenBooking, stats, gridBookings, selec
     const bookingTrend = getTrend(stats.totalToday, stats.totalYesterday);
     const cancellationTrend = getTrend(stats.cancellations, stats.yesterdayCancellations);
 
-    const kpis = [
-        { 
-            title: 'Total Bookings Today', 
-            value: stats?.totalToday ?? '0', 
-            icon: <Calendar className="w-5 h-5" />, 
-            color: 'bg-blue-50 text-blue-600',
-            trend: bookingTrend ? `${bookingTrend.isUp ? '+' : '-'}${bookingTrend.value}% vs yesterday` : 'No past data'
-        },
-        { 
-            title: 'Currently Active', 
-            value: stats?.activeRooms ?? '0', 
-            icon: <Activity className="w-5 h-5" />, 
-            color: 'bg-green-50 text-green-600' 
-        },
-        { 
-            title: 'Cancellations Today', 
-            value: stats?.cancellations ?? '0', 
-            icon: <XCircle className="w-5 h-5" />, 
-            color: 'bg-red-50 text-red-600',
-            trend: cancellationTrend ? `${cancellationTrend.isUp ? '+' : '-'}${cancellationTrend.value}% vs yesterday` : '0% vs yesterday'
-        },
-        { 
-            title: 'Peak Usage Room', 
-            value: stats?.peakRoom ?? 'N/A', 
-            icon: <TrendingUp className="w-5 h-5" />, 
-            color: 'bg-indigo-50 text-indigo-600' 
-        },
-    ];
-
     return (
         <div className="space-y-6 md:space-y-8">
             {/* Header with Tabs */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-4">
                 <div className="space-y-2">
-                    <h2 className="text-xl md:text-2xl font-black text-gray-900 tracking-tight">Live Monitoring Hub</h2>
+                    <h2 className="text-xl md:text-3xl font-black text-gray-900 tracking-tight">Live Monitoring Hub</h2>
                     {/* Tabs Navigation */}
-                    <div className="flex bg-gray-100/50 p-1 rounded-xl border border-gray-100 w-fit">
+                    <div className="flex bg-gray-100/50 p-1.5 rounded-2xl border border-gray-100 w-fit backdrop-blur-sm">
                         <button 
                             onClick={() => setActiveTab('Overview')}
-                            className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${activeTab === 'Overview' ? 'bg-white shadow-sm text-[#4F27E9]' : 'text-gray-400 hover:text-gray-600'}`}
+                            className={`px-6 py-2 text-[11px] font-black uppercase tracking-widest rounded-xl transition-all duration-300 ${activeTab === 'Overview' ? 'bg-white shadow-premium text-[#4F27E9]' : 'text-gray-400 hover:text-gray-600'}`}
                         >
                             Overview
                         </button>
                         <button 
                             onClick={() => setActiveTab('Analytics')}
-                            className={`px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${activeTab === 'Analytics' ? 'bg-white shadow-sm text-[#4F27E9]' : 'text-gray-400 hover:text-gray-600'}`}
+                            className={`px-6 py-2 text-[11px] font-black uppercase tracking-widest rounded-xl transition-all duration-300 ${activeTab === 'Analytics' ? 'bg-white shadow-premium text-[#4F27E9]' : 'text-gray-400 hover:text-gray-600'}`}
                         >
                             Analytics
                         </button>
                     </div>
                 </div>
                 <div className="flex flex-wrap gap-2 md:gap-3">
-                    {/* Primary actions removed as per request for clean UI */}
+                    <Button 
+                        onClick={() => {}} 
+                        className="!bg-white !text-gray-900 border border-gray-100 shadow-sm hover:shadow-md h-12 px-6 rounded-2xl font-bold flex items-center gap-2 group transition-all"
+                    >
+                        <Activity size={18} className="text-[#4F27E9] group-hover:animate-pulse" />
+                        System Health
+                    </Button>
                 </div>
             </div>
             
             {/* KPI Cards - Responsive Grid */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
-                {kpis.map((kpi, kpiIdx) => (
-                    <div key={kpi.title || kpiIdx} className="bg-white p-4 md:p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all group overflow-hidden">
-                        <div className="flex items-center gap-3 md:gap-4">
-                            <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center ${kpi.color}`}>
-                                {kpi.icon}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <p className="text-[10px] md:text-xs text-gray-500 font-bold uppercase tracking-tight truncate">{kpi.title}</p>
-                                <p className="text-lg md:text-2xl font-black text-gray-900 truncate">{kpi.value}</p>
-                            </div>
-                        </div>
-                        {kpi.trend && (
-                            <div className="flex items-center gap-1.5 pt-2 border-t border-gray-50">
-                                <span className={`text-[9px] md:text-[10px] font-bold px-2 py-0.5 rounded-full ${kpi.trend.includes('+') ? 'bg-green-50 text-green-600' : kpi.trend.includes('-') ? 'bg-red-50 text-red-600' : 'bg-gray-50 text-gray-500'}`}>
-                                    {kpi.trend}
-                                </span>
-                            </div>
-                        )}
-                    </div>
-                ))}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                <StatCard 
+                    title="Total Bookings"
+                    value={stats?.totalToday ?? '0'}
+                    subvalue="Overall average today"
+                    icon={Calendar}
+                    variant="indigo"
+                    trend={bookingTrend?.isUp ? 'up' : 'down'}
+                    trendValue={bookingTrend?.value}
+                />
+                <StatCard 
+                    title="Currently Active"
+                    value={stats?.activeRooms ?? '0'}
+                    subvalue="Real-time occupancy"
+                    icon={Activity}
+                    variant="green"
+                    trend="up"
+                    trendValue="Live"
+                />
+                <StatCard 
+                    title="Cancellations"
+                    value={stats?.cancellations ?? '0'}
+                    subvalue="Declined requests"
+                    icon={XCircle}
+                    variant="orange"
+                    trend={cancellationTrend?.isUp ? 'up' : 'down'}
+                    trendValue={cancellationTrend?.value}
+                />
+                <StatCard 
+                    title="Peak Usage"
+                    value={stats?.peakRoom ?? 'N/A'}
+                    subvalue="Most booked room"
+                    icon={TrendingUp}
+                    variant="blue"
+                />
             </div>
 
             {/* Conditional Content based on Active Tab */}
@@ -704,269 +697,193 @@ const UserDashboardView = ({ isAdmin, user, profile, onOpenBooking, gridBookings
     const unreadCount = notifications?.filter(n => !n.is_read).length || 0;
 
     return (
-        <div className="space-y-8">
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                {/* Main Content (3 cols) */}
-                <div className="lg:col-span-3 space-y-8">
+        <div className="space-y-8 pb-12">
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div>
+                    <h2 className="text-[32px] font-black text-gray-900 tracking-tight leading-none mb-2">
+                        Good Morning, {user?.full_name?.split(' ')?.[0] || 'Member'}!
+                    </h2>
+                    <p className="text-gray-500 font-medium">Here's what's happening at Pucho OS today.</p>
+                </div>
+                <div className="flex items-center gap-3">
+                    <Button 
+                        onClick={() => onOpenBooking()}
+                        className="!bg-[#4F27E9] !text-white hover:!bg-[#3D1DB3] h-12 px-8 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-indigo-100 transition-all hover:scale-[1.02] active:scale-95 flex items-center gap-2"
+                    >
+                        <Plus size={18} />
+                        Quick Book
+                    </Button>
+                </div>
+            </div>
+
+            {/* Top Metrics Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                <StatCard 
+                    title="My Meetings"
+                    value={todayBookings.length}
+                    subvalue="Scheduled for today"
+                    icon={Calendar}
+                    variant="indigo"
+                />
+                <StatCard 
+                    title="Notifications"
+                    value={unreadCount}
+                    subvalue="Unread alerts"
+                    icon={Bell}
+                    variant="white"
+                    trend={unreadCount > 5 ? 'up' : 'none'}
+                    trendValue={unreadCount > 0 ? 'Action Reqd' : 'Clear'}
+                />
+                <StatCard 
+                    title="Active Rooms"
+                    value={stats?.activeRooms ?? '0'}
+                    subvalue="Across all floors"
+                    icon={Activity}
+                    variant="green"
+                />
+                <StatCard 
+                    title="AI Minutes"
+                    value={todayBookings.filter(b => b.mom_notes).length}
+                    subvalue="Summaries generated"
+                    icon={Bot}
+                    variant="blue"
+                />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Main Content (2 cols) */}
+                <div className="lg:col-span-2 space-y-8">
                     {/* Welcome Banner */}
-                    <div className="bg-[#4F27E9] p-10 rounded-[40px] text-white shadow-2xl relative overflow-hidden group">
-                        <div className="relative z-10 max-w-lg">
+                    <div className="gradient-indigo p-10 rounded-[48px] text-white shadow-2xl relative overflow-hidden group">
+                        <div className="relative z-10">
                             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-[10px] font-black uppercase tracking-widest mb-6 backdrop-blur-md">
-                                <Bot size={14} className="text-white" />
-                                Pucho OS · {isAdmin ? 'Management Hub' : 'Employee Portal'}
+                                <ShieldAlert size={14} className="text-white" />
+                                Premium Member Plan
                             </div>
-                            <h2 className="text-4xl font-black mb-3 tracking-tight">Hello, {user?.full_name?.split(' ')?.[0] || 'User'}!</h2>
-                            <p className="text-white/70 mb-10 font-medium text-lg leading-relaxed">Ready to automate your next meeting? Your personal assistant is ready in the bottom corner.</p>
-                            <div className="flex items-center gap-4">
+                            <h2 className="text-2xl md:text-3xl font-black mb-4 tracking-tight max-w-md">Schedule your next big idea today.</h2>
+                            <p className="text-white/70 mb-10 font-bold text-lg leading-relaxed max-w-sm">Enjoy automated meeting minutes and real-time room availability.</p>
+                            
+                            <div className="flex flex-wrap items-center gap-4">
                                 <Button 
                                     onClick={() => onOpenBooking()}
-                                    className="!bg-white !text-[#4F27E9] hover:!bg-gray-100 border-none px-10 h-14 font-black rounded-2xl shadow-xl hover:scale-105 transition-all text-sm"
-                                    style={{ textShadow: 'none' }}
+                                    className="!bg-white !text-[#4F27E9] hover:!bg-indigo-50 border-none px-8 h-12 font-black rounded-2xl shadow-xl transition-all"
                                 >
-                                    Quick Book Room
+                                    Book Now
                                 </Button>
-                                {stats?.attendeeCount > 0 && (
-                                    <div className="flex -space-x-3 items-center ml-4">
-                                        {(stats?.attendeeList || []).slice(0, 3).map((email, i) => (
-                                            <img key={i} src={`https://api.dicebear.com/7.x/initials/svg?seed=${email}`} className="w-10 h-10 rounded-full border-2 border-[#4F27E9] bg-white shadow-sm" alt="Attendee" title={email} />
-                                        ))}
-                                        {stats?.attendeeCount > 3 && (
-                                            <div className="w-10 h-10 rounded-full border-2 border-[#4F27E9] bg-indigo-300 flex items-center justify-center text-[10px] font-black text-white">+{stats?.attendeeCount - 3}</div>
-                                        )}
-                                        <p className="text-xs font-bold text-white/50 ml-6 tracking-tight">Today's Attendees</p>
-                                    </div>
-                                )}
+                                <button className="px-6 h-12 font-black rounded-2xl text-white/80 hover:text-white hover:bg-white/10 transition-all text-sm uppercase tracking-widest">
+                                    View Guide
+                                </button>
                             </div>
                         </div>
-                        <Calendar className="absolute -bottom-16 -right-16 w-80 h-80 text-white/5 group-hover:scale-110 group-hover:rotate-6 transition-all duration-1000 opacity-20" />
-                        <div className="absolute top-12 right-12 w-48 h-48 bg-white/5 rounded-full blur-[80px]"></div>
+                        <Bot className="absolute -bottom-12 -right-12 w-64 h-64 text-white/5 group-hover:scale-110 group-hover:-rotate-12 transition-all duration-700 opacity-30" />
+                        <div className="absolute top-12 right-12 w-48 h-48 bg-white/10 rounded-full blur-[80px]"></div>
                     </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {/* Quick Book Panel */}
-                        <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm p-8 flex flex-col justify-between">
-                            <div>
-                                <h3 className="font-black text-[#111834] mb-2 flex items-center gap-3 text-lg">
-                                    <div className="w-10 h-10 rounded-2xl bg-indigo-50 flex items-center justify-center text-[#4F27E9]">
-                                        <Plus className="w-5 h-5" />
-                                    </div>
-                                    Quick Book
-                                </h3>
-                                <p className="text-xs font-medium text-gray-400 mb-8 leading-relaxed">Instantly reserve the best available room for your immediate team sync or 1-on-1.</p>
-                                
-                                <div className="space-y-4">
-                                    {stats.nextAvailable ? (
-                                        <div className="p-4 rounded-2xl bg-[#FAF9FE] border border-[#F0EDFF] hover:border-[#4F27E9] transition-all cursor-pointer group flex justify-between items-center">
-                                            <div>
-                                                <p className="font-bold text-sm text-gray-900 group-hover:text-[#4F27E9]">Next Available Room</p>
-                                                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">{stats?.nextAvailable?.room_name} · {stats?.nextAvailable?.floor_location}</p>
-                                            </div>
-                                            <Button 
-                                                onClick={() => onOpenBooking({ room_id: stats?.nextAvailable?.id, title: 'Quick Team Meeting' })}
-                                                className="h-8 px-4 text-[10px] font-black bg-[#4F27E9] rounded-xl hover:bg-[#3D1DB3]"
-                                            >
-                                                BOOK NOW
-                                            </Button>
-                                        </div>
-                                    ) : (
-                                        <p className="text-xs text-gray-400 font-medium italic">All rooms currently occupied.</p>
-                                    )}
-                                </div>
-                            </div>
-                            <NavLink 
-                                to={profile?.role?.toUpperCase() === 'ADMIN' ? "/admin/rooms" : "/user/rooms"}
-                                className="w-full mt-6 py-4 border-2 border-dashed border-gray-100 rounded-2xl text-[11px] font-black text-gray-400 hover:text-[#4F27E9] hover:border-[#4F27E9] hover:bg-indigo-50/50 transition-all uppercase tracking-widest flex items-center justify-center"
-                            >
-                                EXPLORE ALL ROOMS
-                            </NavLink>
-                        </div>
-
-                        {/* My Today Panel */}
-                        <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm p-8">
-                            <div className="flex justify-between items-center mb-6">
-                                <h3 className="font-black text-[#111834] flex items-center gap-3 text-lg">
-                                    <div className="w-10 h-10 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-500">
-                                        <Clock className="w-5 h-5" />
-                                    </div>
-                                    My Today
-                                </h3>
-                                <button className="text-[10px] font-black text-[#4F27E9] hover:underline uppercase tracking-widest">HISTORY</button>
-                            </div>
-                            <div className="space-y-4">
-                                {(() => {
-                                    if (loadingToday) {
-                                        return (
-                                            <div className="flex justify-center py-10">
-                                                <div className="w-8 h-8 border-4 border-[#4F27E9]/20 border-t-[#4F27E9] rounded-full animate-spin"></div>
-                                            </div>
-                                        );
-                                    }
-
-                                    const myBookings = (todayBookings || []).filter(b => b && b.user_id === user?.id);
-                                    if (myBookings.length > 0) {
-                                        return myBookings.map((booking) => (
-                                            <div key={booking.id || Math.random()} className="p-5 rounded-2xl bg-[#FAF9FE] border border-[#F0EDFF] shadow-sm group/item">
-                                                <div className="flex justify-between items-start mb-3">
-                                                    <div>
-                                                        <h4 className="font-bold text-[#111834] text-sm leading-tight mb-1">{booking.title || 'Untitled Meeting'}</h4>
-                                                        <p className="text-xs font-bold text-gray-400">{booking.startTime || '--:--'} - {booking.endTime || '--:--'}</p>
-                                                    </div>
-                                                    <div className="flex flex-col items-end gap-2">
-                                                        <Badge 
-                                                            status={booking.status}
-                                                            className="px-2 py-0.5"
-                                                        >
-                                                            {booking.status || 'Confirmed'}
-                                                        </Badge>
-                                                        {booking.summary_sent && (
-                                                            <span className="flex items-center gap-1 text-[9px] font-black text-green-500 uppercase tracking-widest bg-green-50 px-2 py-0.5 rounded">
-                                                                <CheckCircle size={10} /> Summary Sent
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                                <div className="flex justify-between items-center pt-3 border-t border-gray-200/50">
-                                                    <span className="text-[11px] font-bold text-gray-500">{booking.room || 'Unknown Room'}</span>
-                                                    <div className="flex gap-4">
-                                                        <button 
-                                                            onClick={() => onOpenMoM(booking)}
-                                                            className="text-[10px] font-black text-[#4F27E9] hover:underline uppercase tracking-widest flex items-center gap-1"
-                                                        >
-                                                            <Wand2 size={12} /> MoM
-                                                        </button>
-                                                        <button className="text-[10px] font-black text-gray-400 hover:text-[#4F27E9] uppercase tracking-widest">Edit</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ));
-                                    }
-
-                                    return (
-                                        <div className="bg-gray-50 rounded-2xl p-8 text-center">
-                                            <Calendar className="mx-auto w-10 h-10 text-gray-200 mb-2" />
-                                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">No meetings booked for today</p>
-                                        </div>
-                                    );
-                                })()}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Availability Grid */}
-                    <div className="space-y-4">
-                        <CalendarGrid 
-                            isAdmin={false} 
-                            rooms={stats.rooms} 
-                            bookings={gridBookings} 
-                            onQuickBook={onOpenBooking}
-                            selectedDate={selectedGridDate}
-                            onDateChange={setSelectedGridDate}
-                        />
-                    </div>
+                    <CalendarGrid 
+                        isAdmin={isAdmin} 
+                        rooms={stats.rooms} 
+                        bookings={gridBookings} 
+                        onQuickBook={onOpenBooking} 
+                        selectedDate={selectedGridDate}
+                        onDateChange={setSelectedGridDate}
+                    />
                 </div>
 
-                {/* Sidebar (1 col) */}
-                <div className="space-y-8 lg:mt-0">
-                    {/* User Profile Info */}
-                    <div className="bg-[#111834] rounded-[32px] p-8 text-white shadow-xl relative overflow-hidden group">
-                        <div className="relative z-10">
-                            <img src={`https://api.dicebear.com/7.x/initials/svg?seed=${user?.full_name}`} className="w-20 h-20 rounded-[28px] border-4 border-white/10 bg-white/5 mb-6 shadow-2xl" alt="Profile" />
-                            <h3 className="text-xl font-bold mb-1">{user?.full_name}</h3>
-                            <p className="text-xs font-black text-[#4F27E9] uppercase tracking-[0.2em] mb-4">Account Verified</p>
-                            
-                            <div className="space-y-4 pt-6 border-t border-white/10">
-                                <div className="flex justify-between items-center">
-                                    <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Department</span>
-                                    <span className="text-xs font-bold">{user?.department || 'N/A'}</span>
+                {/* Sidebar Side (1 col) */}
+                <div className="space-y-8">
+                    {/* My Today Panel */}
+                    <div className="bg-white rounded-[40px] border border-gray-100 shadow-premium p-8 h-full">
+                        <div className="flex justify-between items-center mb-8">
+                            <h3 className="font-black text-[#111834] flex items-center gap-3 text-xl tracking-tight">
+                                <div className="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-500 shadow-sm">
+                                    <Clock className="w-6 h-6" />
                                 </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Role</span>
-                                    <span className="text-xs font-bold uppercase tracking-tighter bg-white/10 px-2 py-0.5 rounded-lg border border-white/5">{user?.role}</span>
-                                </div>
-                            </div>
+                                My Schedule
+                            </h3>
+                            <NavLink to="/user/bookings" className="text-[10px] font-black text-[#4F27E9] hover:underline uppercase tracking-[0.2em]">ALL</NavLink>
+                        </div>
+                        <div className="space-y-6">
+                            {(() => {
+                                if (loadingToday) {
+                                    return (
+                                        <div className="flex justify-center py-20">
+                                            <div className="w-10 h-10 border-4 border-indigo-100 border-t-[#4F27E9] rounded-full animate-spin"></div>
+                                        </div>
+                                    );
+                                }
+                                
+                                const myBookings = (todayBookings || []).filter(b => b.user_id === user?.id);
+                                if (myBookings.length === 0) {
+                                    return (
+                                        <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
+                                            <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center text-gray-300">
+                                                <Calendar size={32} />
+                                            </div>
+                                            <div>
+                                                <p className="font-bold text-gray-900">No meetings today</p>
+                                                <p className="text-sm text-gray-400">Enjoy your productive day!</p>
+                                            </div>
+                                        </div>
+                                    );
+                                }
+                                return myBookings.slice(0, 4).map((booking, i) => (
+                                    <div key={booking.id || i} className="group relative pl-6 border-l-2 border-indigo-50 hover:border-[#4F27E9] transition-all">
+                                        <div className="absolute -left-[5px] top-1 w-2 h-2 rounded-full bg-white border-2 border-indigo-50 group-hover:border-[#4F27E9] group-hover:bg-[#4F27E9] transition-all"></div>
+                                        <div className="flex flex-col gap-1">
+                                            <div className="flex items-center justify-between">
+                                                <p className="font-black text-[15px] text-gray-900 group-hover:text-[#4F27E9] transition-colors">{booking.title || 'Untitled Sync'}</p>
+                                                <span className="text-[10px] font-black text-gray-400">{booking.start_time}</span>
+                                            </div>
+                                            <div className="flex items-center justify-between">
+                                                <p className="text-[12px] font-medium text-gray-500">{booking.room_name || booking.room}</p>
+                                                {booking.mom_notes && (
+                                                    <button onClick={() => onOpenMoM(booking)} className="p-1.5 bg-indigo-50 text-[#4F27E9] rounded-lg hover:bg-[#4F27E9] hover:text-white transition-all">
+                                                        <Bot size={14} />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ));
+                            })()}
+                        </div>
+                    </div>
 
-                            <div className="pt-6 border-t border-white/10">
+                    {/* AI Productivity Widget */}
+                    <div className="bg-[#111834] rounded-[48px] p-8 text-white shadow-2xl relative overflow-hidden group">
+                        <div className="relative z-10">
+                            <h3 className="text-lg font-black mb-6 flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center">
+                                    <Bot size={20} className="text-indigo-400" />
+                                </div>
+                                AI Analytics
+                            </h3>
+                            <div className="space-y-6">
+                                <div>
+                                    <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-2">
+                                        <span>Summary Rate</span>
+                                        <span className="text-white">88%</span>
+                                    </div>
+                                    <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                        <div className="h-full bg-indigo-500 rounded-full shadow-[0_0_10px_rgba(79,39,233,0.5)]" style={{ width: '88%' }}></div>
+                                    </div>
+                                </div>
+                                <div className="flex items-center justify-between p-4 rounded-3xl bg-white/5 border border-white/10">
+                                    <div className="flex items-center gap-3">
+                                        <Activity size={18} className="text-green-400" />
+                                        <span className="text-xs font-bold">System Load</span>
+                                    </div>
+                                    <span className="text-[10px] font-black text-green-400 uppercase tracking-widest">Normal</span>
+                                </div>
                                 <NavLink 
-                                    to={profile?.role?.toUpperCase() === 'ADMIN' ? "/admin/settings" : "/user/settings"}
-                                    className="flex items-center justify-between group/opt cursor-pointer hover:bg-white/5 p-2 rounded-xl transition-colors text-[#4F27E9]"
+                                    to="/user/settings" 
+                                    className="w-full h-12 bg-white/10 hover:bg-white text-white hover:text-[#111834] rounded-2xl flex items-center justify-center text-[10px] font-black uppercase tracking-[0.2em] transition-all"
                                 >
-                                    <span className="text-xs font-black uppercase tracking-widest">Notification Settings</span>
-                                    <Settings size={14} />
+                                    Optimization
                                 </NavLink>
                             </div>
                         </div>
-                        <ShieldAlert className="absolute -bottom-8 -right-8 w-32 h-32 text-white/5 group-hover:text-white/10 transition-all duration-700" />
-                    </div>
-
-                    <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm p-8">
-                        <h3 className="font-black text-[#111834] mb-8 flex items-center gap-3 tracking-tight">
-                            <div className="w-10 h-10 rounded-2xl bg-indigo-50 flex items-center justify-center text-[#4F27E9]">
-                                <Clock className="w-5 h-5" />
-                            </div>
-                            Upcoming
-                        </h3>
-                        <div className="space-y-8">
-                            {stats.upcoming && stats.upcoming.length > 0 ? (
-                                stats.upcoming
-                                    .filter(b => b.user_id === user?.id)
-                                    .slice(0, 3)
-                                    .map((b, i) => (
-                                        <div key={b.id} className="flex gap-5 relative group cursor-pointer">
-                                            <div className={`w-1.5 h-12 rounded-full transition-all group-hover:h-14 ${i === 0 ? 'bg-[#4F27E9]' : 'bg-indigo-100'}`}></div>
-                                            <div className="py-0.5">
-                                                <p className="text-sm font-bold text-[#111834] group-hover:text-[#4F27E9] transition-colors">{b.title}</p>
-                                                <p className="text-[10px] font-black text-gray-400 mt-1 uppercase tracking-widest">{b.booking_date} • {b.startTime}</p>
-                                            </div>
-                                            {i === 0 && <div className="absolute top-1 right-0 w-2 h-2 bg-orange-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(249,115,22,0.5)]"></div>}
-                                        </div>
-                                    ))
-                            ) : (
-                                <p className="text-xs text-gray-400 font-medium">No upcoming meetings.</p>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="bg-white rounded-[32px] border border-gray-100 shadow-sm p-8">
-                        <div className="flex justify-between items-start mb-8">
-                            <h3 className="font-black text-[#111834] flex items-center gap-3 tracking-tight">
-                                <div className="w-10 h-10 rounded-2xl bg-purple-50 flex items-center justify-center text-purple-600">
-                                    <Bell className="w-5 h-5" />
-                                </div>
-                                Notifications
-                            </h3>
-                            {unreadCount > 0 && (
-                                <span className="bg-[#4F27E9] text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-lg shadow-lg">
-                                    {unreadCount}
-                                </span>
-                            )}
-                        </div>
-                        <div className="space-y-6">
-                            {notifications && notifications.length > 0 ? (
-                                notifications
-                                    .slice(0, 3)
-                                    .map((notif, i) => (
-                                        <div key={notif.id || i} className="group cursor-pointer">
-                                            <p className={`text-[11px] font-black ${!notif.is_read ? 'text-[#4F27E9]' : 'text-gray-400'} uppercase tracking-[0.2em] mb-1`}>
-                                                {notif.type || 'Alert'}
-                                            </p>
-                                            <p className="text-xs font-bold text-gray-900 line-clamp-2 leading-relaxed">
-                                                {notif.message}
-                                            </p>
-                                            <p className="text-[9px] font-black text-gray-300 mt-2 uppercase tracking-tight">
-                                                {new Date(notif.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                            </p>
-                                        </div>
-                                    ))
-                            ) : (
-                                <p className="text-xs text-gray-400 font-medium">No recent notifications.</p>
-                            )}
-                        </div>
-                        <NavLink 
-                            to={profile?.role?.toUpperCase() === 'ADMIN' ? "/admin/notifications" : "/user/notifications"}
-                            className="w-full mt-10 bg-[#4F27E9] text-white hover:bg-[#3D1DB3] border-none text-[11px] font-black tracking-widest h-12 rounded-2xl flex items-center justify-center transition-all shadow-[0_8px_20px_-5px_rgba(79,39,233,0.4)]"
-                        >
-                            VIEW ALL ALERTS
-                        </NavLink>
+                        <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-indigo-600/10 rounded-full blur-3xl opacity-50"></div>
                     </div>
                 </div>
             </div>

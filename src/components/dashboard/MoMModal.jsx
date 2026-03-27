@@ -42,8 +42,18 @@ const MoMModal = ({ isOpen, onClose, booking, onSuccess }) => {
                 timestamp: new Date().toISOString()
             };
 
-            // 2. Trigger Pucho Studio Webhook (Central Flow Hand-off)
-            // THE FLOW will generate the MoM and update the database table.
+            // 🚀 2. Immediate DB Update (Client-side reflects change instantly)
+            const { error: dbError } = await supabase
+                .from('bookings')
+                .update({ 
+                    mom_notes: notes,
+                    status: 'COMPLETED' // Mark as completed when MoM is added
+                })
+                .eq('id', booking.id || booking.booking_id);
+
+            if (dbError) throw dbError;
+
+            // 🚀 3. Trigger Pucho Studio Webhook (Background Flow Hand-off)
             fetch(WEBHOOK_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -51,7 +61,7 @@ const MoMModal = ({ isOpen, onClose, booking, onSuccess }) => {
             }).catch(e => console.error("MoM Webhook Flow Error:", e));
 
             clearTimeout(watchdog);
-            showToast('AI Summary request sent to Flow!', 'success');
+            showToast('AI Summary request sent and DB updated!', 'success');
             if (onSuccess) onSuccess();
             onClose();
             setNotes('');

@@ -263,7 +263,7 @@ const Users = () => {
 
     return (
         <div className="space-y-6 animate-fade-in">
-            <div className="flex justify-between items-center bg-white p-6 rounded-2xl border border-gray-100 shadow-sm text-gray-900">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm text-gray-900">
                 <div>
                     <h1 className="text-2xl font-bold">User Management</h1>
                     <p className="text-gray-500 text-sm">Manage user accounts, roles, and access permissions.</p>
@@ -286,8 +286,8 @@ const Users = () => {
                 </div>
             </div>
 
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden text-gray-900">
-                <table className="w-full text-left">
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-x-auto text-gray-900">
+                <table className="w-full text-left min-w-[800px]">
                     <thead className="bg-gray-50 text-gray-500 text-xs uppercase">
                         <tr>
                             <th className="px-6 py-4">Name</th>

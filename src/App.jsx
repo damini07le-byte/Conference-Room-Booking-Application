@@ -12,7 +12,9 @@ import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
 import Settings from "./pages/Settings";
 import MeetingMinutes from "./pages/MeetingMinutes";
+import Deploy from "./pages/Deploy";
 import { DataProvider } from "./context/DataContext";
+import logo from "./assets/pucho_logo_login.png";
 
 const LoadingScreen = () => (
     <div style={{
@@ -24,7 +26,7 @@ const LoadingScreen = () => (
         background: '#f8f9fc',
         gap: '20px'
     }}>
-        <img src="/src/assets/pucho_logo_login.png" alt="Logo" style={{ height: '40px' }} />
+        <img src={logo} alt="Logo" style={{ height: '40px' }} />
         <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
         <div style={{
             width: '40px',
@@ -62,7 +64,7 @@ const PublicRoute = ({ children }) => {
 
 function App() {
     return (
-        <BrowserRouter>
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <ToastProvider>
                 <AuthProvider>
                     <DataProvider>
@@ -82,6 +84,7 @@ function App() {
                                 <Route path="users" element={<Users />} />
                                 <Route path="minutes" element={<MeetingMinutes />} />
                                 <Route path="notifications" element={<Notifications />} />
+                                <Route path="deploy" element={<Deploy />} />
                                 <Route path="settings" element={<Settings />} />
                             </Route>
 

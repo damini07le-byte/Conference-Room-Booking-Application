@@ -138,7 +138,7 @@ const Register = () => {
     };
 
     return (
-        <div className="min-h-screen w-full bg-white relative flex items-center justify-center p-4 overflow-hidden font-sans text-gray-900">
+        <div className="h-screen w-full bg-white relative flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 overflow-hidden font-sans text-gray-900">
             {/* Grid Pattern */}
             <div className="absolute inset-0 z-0 opacity-[0.4] pointer-events-none hidden sm:block"
                 style={{
@@ -167,31 +167,41 @@ const Register = () => {
                 </div>
             </div>
 
-            <div className="w-full max-w-7xl mx-auto grid lg:grid-cols-2 gap-8 lg:gap-24 relative z-10 items-center">
+            <div className="w-full max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-24 relative z-10 items-center py-12 lg:py-0 overflow-y-auto max-h-screen custom-scrollbar px-4">
                 {/* Left Side - Marketing */}
-                <div className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-6 lg:pl-16">
+                <div className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-6 lg:space-y-8 lg:pl-24 w-full">
                     <div className="flex items-center gap-3">
                         <img src={logo} alt="Pucho.ai" className="h-10 md:h-11" />
                     </div>
-                    <div className="space-y-4">
+                    <div className="space-y-4 md:space-y-6">
                         <div className="space-y-1">
                             <div className="text-sm md:text-base font-bold text-[#111834]">Conference Room Booking Application</div>
-                            <div className="text-[8px] md:text-[10px] font-black text-purple-600 tracking-[0.2em] uppercase">POWERED BY AI AGENTS</div>
+                            <div className="text-[10px] md:text-xs font-black text-purple-600 tracking-[0.2em] uppercase">POWERED BY AI AGENTS</div>
                         </div>
-                        <h1 className="text-5xl md:text-7xl font-bold text-[#111834] leading-[0.95] tracking-tighter">
+                        <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-[#111834] leading-[0.9] tracking-tighter">
                             Build.<br />
                             <span className="text-[#8b5cf6]">Automate.</span><br />
                             Scale.
                         </h1>
-                        <p className="text-gray-500 text-sm md:text-lg leading-relaxed max-w-sm md:max-w-md">
+                        <p className="text-gray-500 text-sm md:text-lg leading-relaxed max-w-md font-medium">
                             From data to working intelligence. Access your command center to manage automated customer communication flows.
                         </p>
+                    </div>
+                    <div className="flex flex-wrap justify-center lg:justify-start gap-3 md:gap-4 pt-2">
+                        <div className="flex items-center gap-2 px-3 md:px-4 py-2 bg-[#FAF9FE] border border-[#F0EDFF] rounded-full text-xs font-semibold text-[#6B46C1]">
+                            <Sparkles size={14} fill="currentColor" />
+                            AI Powered
+                        </div>
+                        <div className="flex items-center gap-2 px-3 md:px-4 py-2 bg-[#F0FFF4] border border-[#C6F6D5] rounded-full text-xs font-semibold text-[#2F855A]">
+                            <div className="w-2 h-2 bg-[#48BB78] rounded-full animate-pulse"></div>
+                            System Live
+                        </div>
                     </div>
                 </div>
 
                 {/* Right Side - Register Card */}
                 <div className="flex justify-center lg:justify-end">
-                    <div className="bg-white p-6 md:p-8 rounded-2xl md:rounded-[32px] shadow-[0_32px_80px_-20px_rgba(0,0,0,0.08)] w-full max-w-[440px] border border-gray-50 relative overflow-hidden">
+                    <div className="bg-white p-6 md:p-8 rounded-2xl md:rounded-[32px] shadow-[0_32px_80px_-20px_rgba(0,0,0,0.08)] w-full max-w-[440px] border border-gray-50 relative">
                         <div className="mb-6">
                             <h2 className="text-2xl md:text-3xl font-bold text-[#111834]">Create Account</h2>
                             <p className="text-gray-400 text-sm mt-1">Join the command center to manage your flows.</p>

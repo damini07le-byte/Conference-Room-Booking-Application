@@ -148,110 +148,119 @@ const Bookings = () => {
     });
 
     return (
-        <div className="space-y-6 animate-fade-in group/bookings">
+        <div className="space-y-8 animate-fade-in pb-12">
             {/* Header Section */}
-            <div className="flex justify-between items-center bg-white p-6 rounded-2xl border border-gray-100 shadow-sm text-gray-900">
-                <div>
-                    <h1 className="text-2xl font-bold">Booking Management</h1>
-                    <p className="text-gray-500 text-sm">Manage meetings and room reservations.</p>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-white/40 backdrop-blur-xl p-8 rounded-[40px] border border-white/40 shadow-premium">
+                <div className="space-y-1">
+                    <h1 className="text-3xl font-black text-[#111834] tracking-tight">Booking Hub</h1>
+                    <p className="text-sm font-medium text-gray-500">Effortlessly manage your workspace reservations.</p>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex items-center gap-3">
                     <button
                         onClick={refreshBookings}
-                        className="bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 h-11 px-5 flex items-center gap-2 rounded-full font-bold transition-all"
+                        className="w-12 h-12 flex items-center justify-center bg-white text-gray-400 hover:text-[#4F27E9] rounded-2xl border border-gray-100 shadow-sm transition-all hover:scale-105 active:scale-95"
                     >
-                        <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
-                        Refresh
+                        <RefreshCw size={20} className={loading ? "animate-spin" : ""} />
                     </button>
                     <button
                         onClick={() => handleOpenModal()}
-                        className="bg-[#4F27E9] text-white hover:bg-[#3D1DB3] h-11 px-6 flex items-center gap-2 rounded-full font-bold shadow-lg transition-all"
+                        className="bg-[#4F27E9] text-white hover:bg-[#3D1DB3] h-14 px-8 flex items-center gap-3 rounded-[24px] font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-indigo-100 transition-all hover:scale-[1.02] active:scale-95"
                     >
-                        <Plus size={18} />
+                        <Plus size={20} />
                         New Booking
                     </button>
                 </div>
             </div>
 
             {/* Table Section */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden text-gray-900">
+            <div className="bg-white rounded-[40px] border border-gray-100 shadow-premium overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                        <thead className="bg-[#111935]/[0.02] border-b border-gray-100">
-                            <tr>
-                                <th className="px-6 py-4 text-[12px] font-bold text-gray-400 font-['Outfit'] uppercase tracking-wider">Meeting Details</th>
-                                <th className="px-6 py-4 text-[12px] font-bold text-gray-400 font-['Outfit'] uppercase tracking-wider">Date & Time</th>
-                                <th className="px-6 py-4 text-[12px] font-bold text-gray-400 font-['Outfit'] uppercase tracking-wider">Room</th>
-                                <th className="px-6 py-4 text-[12px] font-bold text-gray-400 font-['Outfit'] uppercase tracking-wider">Status</th>
-                                <th className="px-6 py-4 text-[12px] font-bold text-gray-400 font-['Outfit'] uppercase tracking-wider text-right">Actions</th>
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr className="bg-gray-50/50 border-b border-gray-100">
+                                <th className="px-8 py-6 text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">Meeting</th>
+                                <th className="px-8 py-6 text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">Schedule</th>
+                                <th className="px-8 py-6 text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">Workspace</th>
+                                <th className="px-8 py-6 text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">Status</th>
+                                <th className="px-8 py-6 text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] text-right">Controls</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50">
                             {filteredBookings.length === 0 ? (
                                 <tr>
-                                    <td colSpan="5" className="px-6 py-12 text-center text-gray-400 font-medium">
-                                        No bookings found matching your search.
+                                    <td colSpan="5" className="px-8 py-24 text-center">
+                                        <div className="flex flex-col items-center gap-4 text-gray-400">
+                                            <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center">
+                                                <Calendar size={32} />
+                                            </div>
+                                            <p className="font-bold">No reservations found</p>
+                                        </div>
                                     </td>
                                 </tr>
                             ) : (
                                 filteredBookings.map((booking) => (
-                                    <tr key={booking.id || booking.booking_id} className="hover:bg-gray-50/50 transition-colors group/row">
-                                        <td className="px-6 py-4">
-                                            <div className="flex-1">
+                                    <tr key={booking.id || booking.booking_id} className="hover:bg-indigo-50/30 transition-colors group/row">
+                                        <td className="px-8 py-6">
+                                            <div className="flex flex-col gap-1">
                                                 <div className="flex items-center gap-2">
-                                                    <p className="font-bold text-[#111935]">{booking.title || 'Untitled Meeting'}</p>
+                                                    <p className="font-black text-[15px] text-[#111834] group-hover/row:text-[#4F27E9] transition-colors">
+                                                        {booking.title || 'Team Sync'}
+                                                    </p>
                                                     {booking.mom_notes && (
-                                                        <Badge variant="outline" className="text-[9px] bg-purple-50 text-purple-600 border-purple-100 font-black uppercase py-0 px-1.5 animate-pulse">
-                                                            AI Summary Ready
-                                                        </Badge>
+                                                        <span className="flex items-center gap-1 text-[9px] font-black text-purple-600 bg-purple-50 px-2 py-0.5 rounded uppercase tracking-widest border border-purple-100 animate-pulse">
+                                                            <FileText size={10} /> AI Ready
+                                                        </span>
                                                     )}
                                                 </div>
-                                                <div className="flex items-center gap-1.5 mt-0.5">
-                                                    <MapPin size={12} className="text-gray-400 opacity-50" />
-                                                    <p className="text-xs text-gray-400">{booking.user_email || 'admin@pucho.ai'}</p>
+                                                <div className="flex items-center gap-1.5 text-xs text-gray-400 font-medium font-['Outfit']">
+                                                    <UsersIcon size={12} className="opacity-70" />
+                                                    {booking.user_email || 'pucho.ai member'}
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <div className="text-sm font-medium text-gray-600">
-                                                {booking.booking_date || booking.date}
-                                            </div>
-                                            <div className="text-xs text-gray-400 mt-0.5 font-medium">
-                                                {booking.start_time?.substring(0, 5)} - {booking.end_time?.substring(0, 5)}
+                                        <td className="px-8 py-6">
+                                            <div className="flex flex-col gap-0.5">
+                                                <p className="text-sm font-bold text-gray-700">{booking.booking_date || booking.date}</p>
+                                                <p className="text-[11px] font-black text-[#4F27E9] opacity-70 uppercase tracking-widest">
+                                                    {booking.start_time?.substring(0, 5)} - {booking.end_time?.substring(0, 5)}
+                                                </p>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <Badge variant="outline" className="bg-pucho-blue/5 border-pucho-blue/10 text-pucho-blue font-bold px-3 py-1 uppercase tracking-tighter">
-                                                {booking.room_name || booking.room || 'Room'}
-                                            </Badge>
+                                        <td className="px-8 py-6">
+                                            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-50 border border-gray-100 rounded-xl">
+                                                <MapPin size={14} className="text-[#4F27E9]" />
+                                                <span className="text-xs font-black text-gray-700 uppercase tracking-tight">
+                                                    {booking.room_name || booking.room}
+                                                </span>
+                                            </div>
                                         </td>
-                                        <td className="px-6 py-4">
+                                        <td className="px-8 py-6">
                                             <Badge 
                                                 status={booking.status}
-                                                className="px-4 py-1.5 uppercase tracking-tighter shadow-sm"
+                                                className="px-4 py-1.5 uppercase font-black text-[10px] tracking-widest shadow-sm rounded-xl"
                                             >
                                                 {booking.status}
                                             </Badge>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center justify-end gap-1 opacity-100 md:opacity-0 group-hover/row:opacity-100 transition-opacity">
+                                        <td className="px-8 py-6">
+                                            <div className="flex items-center justify-end gap-2">
                                                 <button 
                                                     onClick={() => handleOpenMoM(booking)}
-                                                    className="p-2 hover:bg-pucho-blue/5 text-gray-400 hover:text-pucho-blue rounded-lg transition-all"
-                                                    title="Meeting Minutes"
+                                                    className="w-10 h-10 flex items-center justify-center hover:bg-white text-gray-400 hover:text-purple-600 rounded-xl border border-transparent hover:border-purple-100 hover:shadow-sm transition-all"
+                                                    title="View AI MoM"
                                                 >
                                                     <FileText size={18} />
                                                 </button>
                                                 <button 
                                                     onClick={() => handleOpenModal(booking)}
-                                                    className="p-2 hover:bg-pucho-blue/5 text-gray-400 hover:text-pucho-blue rounded-lg transition-all"
+                                                    className="w-10 h-10 flex items-center justify-center hover:bg-white text-gray-400 hover:text-[#4F27E9] rounded-xl border border-transparent hover:border-gray-100 hover:shadow-sm transition-all disabled:opacity-30"
                                                     disabled={booking.status === 'CANCELLED'}
                                                 >
                                                     <Edit2 size={18} />
                                                 </button>
                                                 <button 
                                                     onClick={() => handleCancelClick(booking.booking_id || booking.id)}
-                                                    className="p-2 hover:bg-red-50 text-gray-400 hover:text-red-500 rounded-lg transition-all"
+                                                    className="w-10 h-10 flex items-center justify-center hover:bg-white text-gray-400 hover:text-red-500 rounded-xl border border-transparent hover:border-red-50 hover:shadow-sm transition-all disabled:opacity-30"
                                                     disabled={booking.status === 'CANCELLED'}
                                                 >
                                                     <XCircle size={18} />

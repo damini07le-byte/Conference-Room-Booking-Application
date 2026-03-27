@@ -205,106 +205,135 @@ const Rooms = () => {
     };
 
     return (
-        <div className="space-y-6 animate-fade-in">
-            <div className="flex justify-between items-center bg-white p-6 rounded-2xl border border-gray-100 shadow-sm text-gray-900">
-                <div>
-                    <h1 className="text-2xl font-bold">Rooms Management</h1>
-                    <p className="text-gray-500 text-sm">Add, edit, or deactivate conference rooms.</p>
+        <div className="space-y-8 animate-fade-in pb-12">
+            {/* Header Section */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-white/40 backdrop-blur-xl p-8 rounded-[40px] border border-white/40 shadow-premium">
+                <div className="space-y-1">
+                    <h1 className="text-3xl font-black text-[#111834] tracking-tight">Workspace Assets</h1>
+                    <p className="text-sm font-medium text-gray-500">Configure and monitor your conference rooms.</p>
                 </div>
                 {isAdmin && (
-                    <div className="flex gap-2">
-                        <Button onClick={() => refreshRooms()} variant="outline" className="flex items-center gap-2">
-                            <RefreshCw size={18} className={dataLoading ? "animate-spin" : ""} />
-                            Refresh
-                        </Button>
-                        <Button onClick={() => handleOpenModal()} className="flex items-center gap-2">
-                            <Plus size={18} />
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => refreshRooms()}
+                            className="w-12 h-12 flex items-center justify-center bg-white text-gray-400 hover:text-[#4F27E9] rounded-2xl border border-gray-100 shadow-sm transition-all hover:scale-105 active:scale-95"
+                        >
+                            <RefreshCw size={20} className={dataLoading ? "animate-spin" : ""} />
+                        </button>
+                        <button
+                            onClick={() => handleOpenModal()}
+                            className="bg-[#4F27E9] text-white hover:bg-[#3D1DB3] h-14 px-8 flex items-center gap-3 rounded-[24px] font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-indigo-100 transition-all hover:scale-[1.02] active:scale-95"
+                        >
+                            <Plus size={20} />
                             Add New Room
-                        </Button>
+                        </button>
                     </div>
                 )}
             </div>
 
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden text-gray-900">
-                <table className="w-full text-left">
-                    <thead className="bg-gray-50 text-gray-500 text-xs uppercase font-black tracking-widest">
-                        <tr>
-                            <th className="px-6 py-4">Room Details</th>
-                            <th className="px-6 py-4">Capacity</th>
-                            <th className="px-6 py-4">Utilisation</th>
-                            <th className="px-6 py-4">Status</th>
-                            {isAdmin && <th className="px-6 py-4 text-center">Actions</th>}
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-50 text-sm">
-                        {rooms.map((room) => {
-                            const name = room.room_name || room.name || 'Unnamed';
-                            const loc = room.floor_location || room.location || 'N/A';
-                            const status = room.status || 'ACTIVE';
-                            const isActive = status.toUpperCase() === 'ACTIVE';
-                            const id = room.room_id || room.id;
-                            const uti = getRoomUtilisation(id);
+            {/* Table Section */}
+            <div className="bg-white rounded-[40px] border border-gray-100 shadow-premium overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse min-w-[700px]">
+                        <thead>
+                            <tr className="bg-gray-50/50 border-b border-gray-100">
+                                <th className="px-8 py-6 text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">Room Identity</th>
+                                <th className="px-8 py-6 text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">Scale</th>
+                                <th className="px-8 py-6 text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">Utilization</th>
+                                <th className="px-8 py-6 text-[11px] font-black text-gray-400 uppercase tracking-[0.2em]">Status</th>
+                                {isAdmin && <th className="px-8 py-6 text-[11px] font-black text-gray-400 uppercase tracking-[0.2em] text-center">Controls</th>}
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-50 text-sm">
+                            {rooms.map((room) => {
+                                const name = room.room_name || room.name || 'Unnamed';
+                                const loc = room.floor_location || room.location || 'N/A';
+                                const status = room.status || 'ACTIVE';
+                                const isActive = status.toUpperCase() === 'ACTIVE';
+                                const id = room.room_id || room.id;
+                                const uti = getRoomUtilisation(id);
 
-                            return (
-                                <tr key={id} className="hover:bg-gray-50/50 transition-colors">
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-2">
-                                            <span className="font-bold text-gray-900">{name}</span>
-                                            <div className="relative group/info">
-                                                <Info size={14} className="text-gray-300 cursor-help hover:text-[#4F27E9]" />
-                                                <div className="absolute left-6 top-1/2 -translate-y-1/2 hidden group-hover/info:block z-50 w-64 bg-white p-4 rounded-xl shadow-2xl border border-gray-100">
-                                                    <p className="text-xs text-gray-900 font-bold mb-1">{loc}</p>
-                                                    <p className="text-xs text-gray-600 leading-relaxed">{room.amenities || 'No amenities'}</p>
+                                return (
+                                    <tr key={id} className="hover:bg-indigo-50/30 transition-colors group/row">
+                                        <td className="px-8 py-6">
+                                            <div className="flex items-center gap-3">
+                                                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${isActive ? 'bg-indigo-50 text-[#4F27E9]' : 'bg-gray-50 text-gray-400'} border border-transparent group-hover/row:border-indigo-100 transition-all shadow-sm`}>
+                                                    <MapPin size={20} />
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="font-black text-[15px] text-[#111834] group-hover/row:text-[#4F27E9] transition-colors">{name}</span>
+                                                        <div className="relative group/info">
+                                                            <Info size={14} className="text-gray-300 cursor-help hover:text-[#4F27E9] transition-colors" />
+                                                            <div className="absolute left-6 top-1/2 -translate-y-1/2 hidden group-hover/info:block z-50 w-64 bg-white/95 backdrop-blur-md p-6 rounded-[24px] shadow-2xl border border-gray-100 animate-slide-in">
+                                                                <p className="text-[10px] font-black text-[#4F27E9] uppercase tracking-widest mb-2">Location: {loc}</p>
+                                                                <p className="text-xs text-gray-600 font-medium leading-relaxed">{room.amenities || 'Fully equipped for digital collaboration.'}</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{loc}</span>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 font-bold text-gray-600">
-                                        {room.capacity}
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex flex-col gap-1 min-w-[100px]">
-                                            <div className="flex justify-between text-[9px] font-black text-gray-400">
-                                                <span>USAGE</span>
-                                                <span className="text-[#4F27E9]">{uti}%</span>
-                                            </div>
-                                            <div className="w-full h-1 bg-gray-100 rounded-full overflow-hidden">
-                                                <div className="h-full bg-[#4F27E9]" style={{ width: `${uti}%` }}></div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${isActive ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
-                                            {status}
-                                        </span>
-                                    </td>
-                                    {isAdmin && (
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center justify-center gap-2">
-                                                <button 
-                                                    onClick={() => {
-                                                        const ns = isActive ? 'INACTIVE' : 'ACTIVE';
-                                                        handleDeactivate({ room_id: id, id: id, status: ns === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE' });
-                                                    }} 
-                                                    className={`p-2 rounded-xl transition-all ${isActive ? 'text-green-500 hover:bg-green-50' : 'text-gray-400 hover:bg-blue-50'}`}
-                                                    title={isActive ? "Deactivate Room" : "Activate Room"}
-                                                >
-                                                    <Power size={18} />
-                                                </button>
-                                                <button onClick={() => handleOpenModal(room)} className="p-2 text-gray-500 hover:text-pucho-blue">
-                                                    <Edit2 size={18} />
-                                                </button>
-                                                <button onClick={() => setDeleteConfirm(room)} className="p-2 text-gray-400 hover:text-red-500">
-                                                    <Trash2 size={18} />
-                                                </button>
+                                        </td>
+                                        <td className="px-8 py-6">
+                                            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-xl border border-gray-100">
+                                                <Users size={14} className="text-gray-400" />
+                                                <span className="text-sm font-black text-gray-700">{room.capacity}</span>
                                             </div>
                                         </td>
-                                    )}
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
+                                        <td className="px-8 py-6">
+                                            <div className="flex flex-col gap-1.5 max-w-[120px]">
+                                                <div className="flex justify-between text-[10px] font-black uppercase tracking-tight">
+                                                    <span className="text-gray-400">Weekly</span>
+                                                    <span className="text-[#4F27E9]">{uti}%</span>
+                                                </div>
+                                                <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                                                    <div className="h-full bg-indigo-500 rounded-full shadow-[0_0_10px_rgba(79,39,233,0.3)] transition-all duration-1000" style={{ width: `${uti}%` }}></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-8 py-6">
+                                            <Badge 
+                                                status={status}
+                                                className="px-4 py-1.5 uppercase font-black text-[10px] tracking-widest shadow-sm rounded-xl"
+                                            >
+                                                {status}
+                                            </Badge>
+                                        </td>
+                                        {isAdmin && (
+                                            <td className="px-8 py-6">
+                                                <div className="flex items-center justify-center gap-2">
+                                                    <button 
+                                                        onClick={() => {
+                                                            const ns = isActive ? 'INACTIVE' : 'ACTIVE';
+                                                            handleDeactivate({ room_id: id, id: id, status: ns === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE' });
+                                                        }} 
+                                                        className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all border border-transparent hover:shadow-sm ${isActive ? 'text-green-500 bg-green-50/50 hover:bg-green-50 hover:border-green-100' : 'text-gray-400 hover:bg-blue-50 hover:border-blue-100'}`}
+                                                        title={isActive ? "Deactivate Room" : "Activate Room"}
+                                                    >
+                                                        <Power size={18} />
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => handleOpenModal(room)} 
+                                                        className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-[#4F27E9] bg-gray-50/50 hover:bg-white rounded-xl border border-transparent hover:border-gray-100 hover:shadow-sm transition-all"
+                                                    >
+                                                        <Edit2 size={18} />
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => setDeleteConfirm(room)} 
+                                                        className="w-10 h-10 flex items-center justify-center text-gray-400 hover:text-red-500 bg-gray-50/50 hover:bg-white rounded-xl border border-transparent hover:border-red-50 hover:shadow-sm transition-all"
+                                                    >
+                                                        <Trash2 size={18} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        )}
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={editingRoom ? "Edit Room" : "Add New Room"}>

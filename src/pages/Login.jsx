@@ -72,8 +72,18 @@ const Login = () => {
         setLoading(true);
         setError('');
 
+        // 🚀 Watchdog Timer: Recover UI if request hangs too long
+        const watchdog = setTimeout(() => {
+            if (loading) {
+                setLoading(false);
+                setError('Login is taking longer than usual. Please check your connection or try again.');
+            }
+        }, 15000); 
+
         try {
             const result = await login(email, password, role);
+            clearTimeout(watchdog);
+
             if (!result.success) {
                 setError(result.message || 'Invalid email or password');
                 setLoading(false);
@@ -83,13 +93,14 @@ const Login = () => {
                 navigate(target);
             }
         } catch (err) {
-            setError('An unexpected error occurred');
+            clearTimeout(watchdog);
+            setError('An unexpected error occurred. Please try again.');
             setLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen w-full bg-white relative flex items-center justify-center p-4 overflow-hidden font-sans">
+        <div className="h-screen w-full bg-white relative flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 overflow-hidden font-sans text-gray-900">
             {/* Grid Pattern - Hide on small mobile */}
             <div className="absolute inset-0 z-0 opacity-[0.4] pointer-events-none hidden sm:block"
                 style={{
@@ -118,9 +129,9 @@ const Login = () => {
                 </div>
             </div>
 
-            <div className="w-full max-w-7xl mx-auto grid lg:grid-cols-2 gap-8 lg:gap-24 relative z-10 items-center pb-8 pt-4 lg:py-0">
+            <div className="w-full max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-24 relative z-10 items-center py-12 lg:py-0 overflow-y-auto max-h-screen custom-scrollbar px-4">
                 {/* Left Side - Marketing (Visible on all devices) */}
-                <div className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-6 lg:space-y-8 lg:pl-16 mb-2 lg:mb-0">
+                <div className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-6 lg:space-y-8 lg:pl-24 w-full">
                     <div className="flex items-center gap-3">
                         <img src={logo} alt="Pucho.ai" className="h-10 md:h-11" />
                     </div>
@@ -129,10 +140,10 @@ const Login = () => {
                             <div className="text-sm md:text-base font-bold text-[#111834]">Conference Room Booking Application</div>
                             <div className="text-[8px] md:text-[10px] font-black text-purple-600 tracking-[0.2em] uppercase">POWERED BY AI AGENTS</div>
                         </div>
-                        <h1 className="text-5xl md:text-7xl font-bold text-[#111834] leading-[0.95] tracking-tighter">
-                            Build.<br />
-                            <span className="text-[#8b5cf6]">Automate.</span><br />
-                            Scale.
+                        <h1 className="text-6xl md:text-9xl font-black text-[#111834] leading-[0.9] tracking-tight">
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4F27E9] to-[#8b5cf6]">Build.</span><br />
+                            <span className="text-[#8b5cf6] italic opacity-90">Automate.</span><br />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#111834] via-[#4F27E9] to-[#111834]">Scale.</span>
                         </h1>
                         <p className="text-gray-500 text-sm md:text-base leading-relaxed max-w-md">
                             From data to working intelligence. Access your command center to manage automated customer communication flows.
@@ -152,7 +163,7 @@ const Login = () => {
 
                 {/* Right Side - Login Card */}
                 <div className="flex justify-center lg:justify-end">
-                    <div className="bg-white p-6 md:p-8 lg:p-10 rounded-2xl md:rounded-[32px] shadow-[0_32px_80px_-20px_rgba(0,0,0,0.08)] w-full max-w-[400px] md:max-w-[440px] border border-gray-50 relative overflow-hidden">
+                    <div className="bg-white p-6 md:p-8 lg:p-10 rounded-2xl md:rounded-[32px] shadow-[0_32px_80px_-20px_rgba(0,0,0,0.08)] w-full max-w-[400px] md:max-w-[440px] border border-gray-100 relative">
                         <div className="space-y-4 md:space-y-6 mb-6 md:mb-8">
                             <div className="text-center md:text-left">
                                 <h2 className="text-2xl md:text-3xl font-bold text-[#111834]">Welcome Back</h2>

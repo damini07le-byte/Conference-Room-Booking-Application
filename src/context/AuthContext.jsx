@@ -73,18 +73,19 @@ export const AuthProvider = ({ children }) => {
     // CUSTOM LOGIN (No Supabase Auth)
     const login = async (email, password, requiredRole = null) => {
         try {
+            // 🚀 Fast Fetch: Only select what's absolutely necessary
             const { data: userData, error: fetchError } = await supabase
                 .from('users')
-                .select('user_id, email, password, full_name, role, department')
-                .eq('email', email)
+                .select('user_id, email, password, role, full_name, department')
+                .eq('email', email.trim())
                 .maybeSingle();
 
             if (fetchError || !userData) {
                 return { success: false, message: "User doesn't exist." };
             }
 
-            // Verify password
-            const isMatch = bcrypt.compareSync(password, userData.password);
+            // 🚀 Async Verify: Use async comparison to keep UI responsive
+            const isMatch = await bcrypt.compare(password, userData.password);
             if (!isMatch) {
                 return { success: false, message: "Incorrect password." };
             }
@@ -98,7 +99,7 @@ export const AuthProvider = ({ children }) => {
                 };
             }
 
-            // Prepare session data (Removed last_login update to fix schema cache error)
+            // Prepare session data
             const sessionUser = { ...userData };
             delete sessionUser.password;
             

@@ -3,6 +3,7 @@ import Sidebar from "../components/dashboard/Sidebar";
 import Header from "../components/dashboard/Header";
 import { Outlet } from "react-router-dom";
 import { Menu, X } from "lucide-react";
+import logo from "../assets/pucho_logo_login.png";
 
 const AdminDashboard = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -36,7 +37,7 @@ const AdminDashboard = () => {
                     >
                         <Menu size={24} />
                     </button>
-                    <img src="/src/assets/pucho_logo_login.png" alt="Logo" className="h-8" />
+                    <img src={logo} alt="Logo" className="h-8" />
                 </div>
 
                 {/* Desktop Header: Sticky Top */}
